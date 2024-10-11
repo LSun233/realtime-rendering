@@ -14,4 +14,40 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3PartyLib\glad\src\glad.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader_m.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PLY.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="type_define.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BPShader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\shader\blinn_phong.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\data\shader\blinn_phong.frag">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>
