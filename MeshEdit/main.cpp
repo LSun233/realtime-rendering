@@ -13,16 +13,10 @@
 #include"type_define.h"
 #include <iostream>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include"imgui/ImGuiFileDialog.h"
+#include"ui.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window,  Mesh& target, Camera& cam);
-
-// settings
-
+void processInput(Mesh& target, Camera& cam);
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -61,103 +55,11 @@ GLFWwindow* creatGLFWwindow()
     glEnable(GL_DEPTH_TEST);
     return window;
 }
-void init_imgui(GLFWwindow* window)
-{
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-    const char* glsl_version = "#version 130";
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-}
-struct Gui_param
-{
-    Gui_param() {};
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    bool show_demo_window = false;         //imgui demo 窗口控制
-    bool wire_mode = false;                //线框模式
-    bool SSA0 = false;
-    bool hard_shadow = false;
-    bool shadow_debug = false;
-    bool back_ground = true;
-    float fps = 0;                           //显示帧率
-    float alpha = 1.0f;
-    string filePath = "";                    //当前加载路径
-};
-void RenderMainImGui(Gui_param& gui_param)
-{
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
 
-    if (gui_param.show_demo_window)
-        ImGui::ShowDemoWindow(&gui_param.show_demo_window);
-    bool flag = true;
-    if (gui_param.back_ground)
-    {
-        ImGui::Begin("Menu", &flag, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-    }
-    else
-    {
-        ImGui::Begin("Menu", &flag, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground);
-    }
-    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
-    ImVec2 Menue_size = ImVec2(screen_size.x / 5, screen_size.y / 3);
-    ImVec2 Menue_pos = ImVec2(screen_size.x - Menue_size.x, 0);
-    ImGui::SetWindowSize("Menu", Menue_size);
-    ImGui::SetWindowPos("Menu", Menue_pos);
-    //ImGui::Text("Use 'Left Alter' to focus on window");
-    ImGui::Checkbox("Demo Window", &gui_param.show_demo_window);
-    ImGui::SameLine();
-    ImGui::Checkbox("WireMode", &gui_param.wire_mode);
-    ImGui::SameLine();
-    
-    ImGui::SameLine();
-    ImGui::Checkbox("background", &gui_param.back_ground);
-    ImGui::SameLine();
-    ImGui::Text("FPS: %f", gui_param.fps);
-    //换行
-    ImGui::ColorEdit4("clear color", (float*)&gui_param.clear_color); // Edit 3 floats representing a color
-    ImGui::SliderFloat("alpha", &gui_param.alpha, 0.0, 1.0f);
-    //换行
-    ImGui::Checkbox("hard_shadow", &gui_param.hard_shadow);
-    ImGui::SameLine();
-    ImGui::Checkbox("shadow_debug", &gui_param.shadow_debug);
-    ImGui::SameLine();
 
-    //ImGui::DragFloat("alpha", &gui_param.alpha,0.01f,0.0,1.0f);
-
-    if (ImGui::Button("Import model"))
-        ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".obj", ".");
-    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-    {
-        if (ImGuiFileDialog::Instance()->IsOk())
-        {
-            gui_param.filePath = ImGuiFileDialog::Instance()->GetFilePathName();
-            while (gui_param.filePath.find('\\') != gui_param.filePath.npos)
-            {
-                gui_param.filePath = gui_param.filePath.replace(gui_param.filePath.find('\\'), 1, 1, '/');
-            }
-            // gui_param.filePath.replace("","");
-        }
-
-        ImGuiFileDialog::Instance()->Close();
-    }
-    ImGui::End();
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
 int main()
 {
-   
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
     Gui_param gui_param= Gui_param();
@@ -181,7 +83,6 @@ int main()
 
     };
 
-
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
@@ -191,19 +92,12 @@ int main()
     BPShader bpShader("../data/shader/blinn_phong.vert", "../data/shader/blinn_phong.frag");
     Shader lightCubeShader("../data/shader/light.vert", "../data/shader/light.frag");
 
-
-
-
-
-
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-
         // input
-        // -----
-        processInput(window,mesh,camera);
+        processInput(mesh,camera);
 
         // render
         // ------
@@ -212,7 +106,7 @@ int main()
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        ImVec4 clear_color = gui_param.clear_color;
+        ImVec4 clear_color = ImVec4(gui_param.clear_color[0], gui_param.clear_color[1], gui_param.clear_color[2], gui_param.clear_color[3]);
         
         // per-frame time logic
         // --------------------
@@ -220,7 +114,7 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // render
+        // render scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 
@@ -229,7 +123,7 @@ int main()
         bpShader.activate(mat, light);
         mesh.Draw(bpShader,mat, light, camera);
 
-
+        // render ui
         RenderMainImGui(gui_param);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -247,7 +141,8 @@ int main()
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 
-void processInput(GLFWwindow* window,Mesh& target,Camera& cam)
+
+void processInput(Mesh& target,Camera& cam)
 {
     //if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     //    glfwSetWindowShouldClose(window, true);
@@ -285,10 +180,9 @@ void processInput(GLFWwindow* window,Mesh& target,Camera& cam)
             target.SetPostion(newPos);
         }
     }
-    std::cout << "up:" << io.MouseWheel<< std::endl;
+    
     if (io.MouseWheel > 0)
     {
-        std::cout << "up" << std::endl;
         //靠近相机
         glm::vec3 newPos = target.Position;
         glm::vec3 camPos = cam.Position;
@@ -307,14 +201,17 @@ void processInput(GLFWwindow* window,Mesh& target,Camera& cam)
         newPos = newPos - scale * direct;
         target.SetPostion(newPos);
     }
-
 }
+
+
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
 }
 
