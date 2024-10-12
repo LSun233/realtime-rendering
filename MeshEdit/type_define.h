@@ -42,5 +42,13 @@ struct BPLight {
     glm::vec3 specular;
 };
 
+struct AABB
+{
+    glm::vec3 max = glm::vec3(-9999999.0f, -9999999.0f, -9999999.0f);
+    glm::vec3 min = glm::vec3(9999999.0f, 9999999.0f, 9999999.0f);
+    glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);;
+
+};
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+

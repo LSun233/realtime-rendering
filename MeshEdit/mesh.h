@@ -20,6 +20,7 @@ public:
     glm::vec3 Position;
     glm::vec3 Scale;
     glm::qua<float> Rotation;
+    AABB aabb;
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
     {
@@ -39,7 +40,6 @@ public:
     {
         this->textures = textures;
     }
-
 
     // render the mesh
     void Draw(Shader& shader, BPMaterial& mat, BPLight& light, Camera& cam)
@@ -173,6 +173,44 @@ private:
         //}
         //std::cout << std::endl << std::endl;
     }
+    void GetAABB()
+    {
+        float xmax = -9999999;
+        float ymax = -9999999;
+        float zmax = -9999999;
+        float xmin = +9999999;
+        float ymin = +9999999;
+        float zmin = +9999999;
+
+     
+            for (int j = 0; j < vertices.size(); j++)
+            {
+                // 计算pMax
+                if (xmax < vertices[j].Position.x)
+                    xmax = vertices[j].Position.x;
+                if (ymax <vertices[j].Position.y)
+                    ymax = vertices[j].Position.y;
+                if (zmax <vertices[j].Position.z)
+                    zmax = vertices[j].Position.z;
+
+                // 计算pMin
+                if (xmin > vertices[j].Position.x)
+                    xmin = vertices[j].Position.x;
+                if (ymin > vertices[j].Position.y)
+                    ymin = vertices[j].Position.y;
+                if (zmin > vertices[j].Position.z)
+                    zmin = vertices[j].Position.z;
+            }
+        
+        aabb.max = glm::vec3(xmax, ymax, zmax);
+        aabb.min = glm::vec3(xmin, ymin, zmin);
+        aabb.center = 0.5f * (aabb.max + aabb.min);
+        aabb.max -= aabb.center;
+        aabb.min -= aabb.center;
+    }
+
+
+   
 
 };
 #endif
