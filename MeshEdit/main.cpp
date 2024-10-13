@@ -59,12 +59,15 @@ GLFWwindow* creatGLFWwindow()
 
 int main()
 {
+    vector<Mesh> meshList;
+    
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
     Gui_param gui_param= Gui_param();
     //读入模型数据
     string path = "C:/Users/孙龙/Desktop/bunny1.ply";
     Mesh  mesh = Mesh(path);
+    mesh.name = " bunny1";
     mesh.OnCenter(camera.Position,camera.Front);
     //设置模型材质
     BPMaterial mat = { 

@@ -4,6 +4,7 @@
 #include <vector>
 using namespace std;
 #define MAX_BONE_INFLUENCE 4
+#define INF 9999999.0
 struct Vertex {
     // position
     glm::vec3 Position;

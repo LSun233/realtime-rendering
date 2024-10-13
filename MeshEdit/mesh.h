@@ -17,6 +17,7 @@ public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
+    string name;
     
     glm::vec3 Scale;
     glm::mat4 model;

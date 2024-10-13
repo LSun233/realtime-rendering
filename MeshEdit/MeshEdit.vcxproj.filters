@@ -110,6 +110,9 @@
     <ClInclude Include="ui.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="BVH.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader\blinn_phong.vert">

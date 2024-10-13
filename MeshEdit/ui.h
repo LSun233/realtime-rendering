@@ -5,6 +5,11 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include"imgui/ImGuiFileDialog.h"
 
+// Helper to wire demo markers located in code to an interactive browser
+
+// Helper to wire demo markers located in code to an interactive browser
+
+
 void init_imgui(GLFWwindow* window)
 {
     // Setup Dear ImGui context
@@ -77,13 +82,7 @@ void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
-
-
-
     ImGui::NewFrame();
-
-
-
     if (gui_param.show_demo_window)
         ImGui::ShowDemoWindow(&gui_param.show_demo_window);
     bool flag = true;
@@ -122,9 +121,7 @@ void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
     ImGui::SameLine();
     ImGui::Checkbox("shadow_debug", &gui_param.shadow_debug);
     ImGui::SameLine();
-
-    //ImGui::DragFloat("alpha", &gui_param.alpha,0.01f,0.0,1.0f);
-
+   
     if (ImGui::Button("Import model"))
         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".obj", ".");
     if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
@@ -138,8 +135,20 @@ void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
             }
             // gui_param.filePath.replace("","");
         }
-
         ImGuiFileDialog::Instance()->Close();
+    }
+    if (ImGui::CollapsingHeader("scene list", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        // 节点内容...
+        ImGui::Text("model");
+        if (ImGui::TreeNode("Child 1"))
+        {
+            // 子节点内容...
+            ImGui::Text("Child 1 contents");
+            ImGui::TreePop(); // 结束子节点
+        }
+
+        ImGui::TreePop(); // 结束节点
     }
 
     //UI交互
