@@ -17,10 +17,11 @@ public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
-    glm::vec3 Position;
+    
     glm::vec3 Scale;
-    glm::mat4 Rotation;
+    glm::mat4 model;
     glm::qua<float> Rotation_qua;
+ 
     AABB aabb;
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
@@ -28,8 +29,6 @@ public:
         this->vertices = vertices;
         this->indices = indices;
         setupMesh();
- 
-
     }
     Mesh(string pathPly)
     {
@@ -87,28 +86,68 @@ public:
         // always good practice to set everything back to defaults once configured.
         glActiveTexture(GL_TEXTURE0);
     }
-
-    void SetPostion(glm::vec3 position)
+    void rotation(glm::vec3 axis, float angle)
     {
-        Position = position;
+        glm::mat4 transM = glm::mat4(1.0f);
+        transM = glm::rotate(transM, angle, axis);
+        model = model * transM;
+
+    }
+    void translate(glm::vec3 trans)   
+    {
+        glm::mat4 transM = glm::mat4(1.0f);
+        transM = glm::translate(transM, trans);
+        model = transM*model;
+    }
+    glm::mat4 GetRotation()
+    {
+        return Rotation;
     }
     void SetRotation(glm::qua<float> rotation)
     {
         Rotation_qua = rotation;
         Rotation=glm::mat4_cast(Rotation_qua);
+
+       // model = glm::mat4(1.0f);
+        model = Rotation * model;
+        model = glm::translate(model, Position);
+        model = glm::scale(model, Scale);
     }
     void SetScale(glm::vec3 scale)
     {
         Scale = scale;
-    }
-    glm::mat4 GetModelMat()
-    {
-        glm::mat4 model = glm::mat4(1.0f);
+
+        model = glm::mat4(1.0f);
         model = Rotation * model;
         model = glm::translate(model, Position);
         model = glm::scale(model, Scale);
-
+    }
+    glm::mat4 GetModelMat()
+    {
         return model;
+    }
+    void SetModelMat(glm::mat4 mat)
+    {
+        model = mat;
+    }
+    void OnCenter(glm::vec3 CameraPos, glm::vec3 direction)
+    {
+        float fov = 60;
+        float AspectRatio = 16.0 / 9.0;
+        //竖直方向dis
+        GetAABB();
+        float aabb_height = aabb.max.y - aabb.min.y;
+        float distance_y = 8 * aabb_height / glm::tan(glm::radians(fov));
+        //水平方向的dis
+        float aabb_width = aabb.max.x - aabb.min.x;
+        float distance_x = 8 * aabb_width / (glm::tan(glm::radians(fov)) * AspectRatio);
+        float distance = glm::min(distance_x, distance_y);
+        glm::vec3 center_target_postion = CameraPos + distance * glm::normalize(direction);
+        glm::vec3 center_in_world = Position + aabb.center;
+        glm::vec3 move = center_target_postion - center_in_world;
+        translate(move);
+
+
     }
     ~Mesh()
     {
@@ -117,7 +156,8 @@ public:
     }
 private:
     // render data 
-     
+    glm::mat4 Rotation;
+    glm::vec3 Position;
     unsigned int VAO,VBO, EBO;
     // initializes all the buffer objects/arrays
     void setupMesh()
@@ -169,6 +209,11 @@ private:
         Scale = glm::vec3(1.0, 1.0, 1.0);
         Rotation_qua = glm::qua<float>(1.0,0.0,0.0,0.0);
         Rotation=glm::mat4_cast(Rotation_qua);
+
+        model = glm::mat4(1.0f);
+        model = Rotation * model;
+        model = glm::translate(model, Position);
+        model = glm::scale(model, Scale);
 
     }
     void GetAABB()

@@ -32,7 +32,19 @@ void interaction(Mesh& target, Camera& cam)
 
     if (io.MouseDown[0])
     {
-
+        if (io.MousePos.y >0  )
+        {
+          
+            float angle = io.MouseDelta.y*glm::radians(0.1f); // 
+            glm::vec4 axis = glm::inverse(target.GetModelMat()) * glm::vec4(cam.Right, 0);
+            target.rotation( glm::vec3(axis.x, axis.y, axis.z), angle);
+        }
+        if (io.MousePos.x > 0)
+        { 
+            float angle = io.MouseDelta.x * glm::radians(0.1f); // 
+            glm::vec4 axis = glm::inverse(target.GetModelMat()) * glm::vec4(cam.Up, 0);
+            target.rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+        }
     }
     if (io.MouseDown[1])
     {
@@ -40,34 +52,25 @@ void interaction(Mesh& target, Camera& cam)
             io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
         if (!on_menue)
         {
-            glm::vec3 newPos = target.Position;
-            newPos = newPos+ 0.001f * io.MouseDelta.x*cam.Right;
-            newPos = newPos - 0.001f * io.MouseDelta.y*cam.Up;
-            target.Position=newPos;
+            glm::vec3 trans = 0.0001f * io.MouseDelta.x * cam.Right - 0.0001f * io.MouseDelta.y * cam.Up;
+            target.translate(trans);
         }
     }
 
     float wheel = ImGui::GetIO().MouseWheel;
-    std::cout << wheel << std::endl;
+  
     float distance_scale = 0.1f;
     if (io.MouseWheel > 0)
     {
         //靠近相机
-        glm::vec3 newPos = target.Position;
-        glm::vec3 camPos = cam.Position;
-       
-     
-        newPos = newPos + distance_scale * cam.Front;
-        target.Position =newPos;
+        glm::vec3 trans = distance_scale * cam.Front;
+        target.translate(trans);
     }
     if (io.MouseWheel < 0)
     {
         //远离相机
-        glm::vec3 newPos = target.Position;
-        glm::vec3 camPos = cam.Position;
-
-        newPos = newPos - distance_scale * cam.Front;
-        target.Position=newPos;
+        glm::vec3 trans =-1*distance_scale * cam.Front;
+        target.translate(trans);
     }
 }
 void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
