@@ -19,7 +19,8 @@ public:
     vector<Texture>      textures;
     glm::vec3 Position;
     glm::vec3 Scale;
-    glm::qua<float> Rotation;
+    glm::mat4 Rotation;
+    glm::qua<float> Rotation_qua;
     AABB aabb;
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
@@ -93,7 +94,8 @@ public:
     }
     void SetRotation(glm::qua<float> rotation)
     {
-        Rotation = rotation;
+        Rotation_qua = rotation;
+        Rotation=glm::mat4_cast(Rotation_qua);
     }
     void SetScale(glm::vec3 scale)
     {
@@ -102,7 +104,7 @@ public:
     glm::mat4 GetModelMat()
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::mat4_cast(Rotation) * model;
+        model = Rotation * model;
         model = glm::translate(model, Position);
         model = glm::scale(model, Scale);
 
@@ -165,13 +167,9 @@ private:
 
         Position = glm::vec3(0, 0, 0);
         Scale = glm::vec3(1.0, 1.0, 1.0);
-        Rotation = glm::qua<float>(1.0,0.0,0.0,0.0);
-     
-        //for (int i = 0; i < 4; i++)
-        //{
-        //    std::cout << rot[i][0] << " " << rot[i][1] << " " << rot[i][2] << " " << rot[i][3] << " " << std::endl;
-        //}
-        //std::cout << std::endl << std::endl;
+        Rotation_qua = glm::qua<float>(1.0,0.0,0.0,0.0);
+        Rotation=glm::mat4_cast(Rotation_qua);
+
     }
     void GetAABB()
     {

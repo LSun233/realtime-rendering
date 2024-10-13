@@ -16,7 +16,6 @@
 #include"ui.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(Mesh& target, Camera& cam);
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -97,7 +96,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         // input
-        processInput(mesh,camera);
+     
 
         // render
         // ------
@@ -124,7 +123,7 @@ int main()
         mesh.Draw(bpShader,mat, light, camera);
 
         // render ui
-        RenderMainImGui(gui_param);
+        RenderMainImGui(gui_param, mesh, camera);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -142,68 +141,6 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 
 
-void processInput(Mesh& target,Camera& cam)
-{
-    //if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    //    glfwSetWindowShouldClose(window, true);
-    //if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    //    camera.ProcessKeyboard(FORWARD, deltaTime);
-    //if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    //    camera.ProcessKeyboard(BACKWARD, deltaTime);
-    //if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    //    camera.ProcessKeyboard(LEFT, deltaTime);
-    //if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    //    camera.ProcessKeyboard(RIGHT, deltaTime);
-
-    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
-    ImVec2 Menue_size = ImVec2(screen_size.x / 5, screen_size.y / 3);
-    ImVec2 Menue_pos = ImVec2(screen_size.x - Menue_size.x, 0);
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.MouseDown[0])
-    {
-        bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
-            io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
-        if (!on_menue)
-        {
-            cam.ProcessMouseMovement(io.MouseDelta.x, io.MouseDelta.y);
-        }
-    }
-    if (io.MouseDown[1])
-    {
-        bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
-            io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
-        if (!on_menue)
-        {
-            glm::vec3 newPos = target.Position;
-            newPos.x = newPos.x + 0.01f*io.MouseDelta.x;
-            newPos.y = newPos.y + 0.01f * io.MouseDelta.y;
-            target.SetPostion(newPos);
-        }
-    }
-    
-    if (io.MouseWheel > 0)
-    {
-        //靠近相机
-        glm::vec3 newPos = target.Position;
-        glm::vec3 camPos = cam.Position;
-        glm::vec3 direct = glm::normalize(camPos - newPos);
-        float scale = 0.5f;
-        newPos = newPos + scale*direct;
-        target.SetPostion(newPos);
-    }
-    if (io.MouseWheel < 0)
-    {
-        //远离相机
-        glm::vec3 newPos = target.Position;
-        glm::vec3 camPos = cam.Position;
-        glm::vec3 direct = glm::normalize(camPos - newPos);
-        float scale = 0.5f;
-        newPos = newPos - scale * direct;
-        target.SetPostion(newPos);
-    }
-}
-
-
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -214,6 +151,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
 }
+
+// GLFW滚轮回调
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    // 将滚轮事件传递给 ImGui
+
+   //ImGui_ImplGlfw_ScrollCallback(window, static_cast<float>(xoffset), static_cast<float>(yoffset));
+   
+
+}
+
 
 
 

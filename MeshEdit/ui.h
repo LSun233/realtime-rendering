@@ -10,10 +10,11 @@ void init_imgui(GLFWwindow* window)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO(); 
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
@@ -22,11 +23,63 @@ void init_imgui(GLFWwindow* window)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
-void RenderMainImGui(Gui_param& gui_param)
+void interaction(Mesh& target, Camera& cam)
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    ImVec2 Menue_size = ImVec2(screen_size.x / 5, screen_size.y / 3);
+    ImVec2 Menue_pos = ImVec2(screen_size.x - Menue_size.x, 0);
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.MouseDown[0])
+    {
+
+    }
+    if (io.MouseDown[1])
+    {
+        bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
+            io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
+        if (!on_menue)
+        {
+            glm::vec3 newPos = target.Position;
+            newPos = newPos+ 0.001f * io.MouseDelta.x*cam.Right;
+            newPos = newPos - 0.001f * io.MouseDelta.y*cam.Up;
+            target.Position=newPos;
+        }
+    }
+
+    float wheel = ImGui::GetIO().MouseWheel;
+    std::cout << wheel << std::endl;
+    float distance_scale = 0.1f;
+    if (io.MouseWheel > 0)
+    {
+        //靠近相机
+        glm::vec3 newPos = target.Position;
+        glm::vec3 camPos = cam.Position;
+       
+     
+        newPos = newPos + distance_scale * cam.Front;
+        target.Position =newPos;
+    }
+    if (io.MouseWheel < 0)
+    {
+        //远离相机
+        glm::vec3 newPos = target.Position;
+        glm::vec3 camPos = cam.Position;
+
+        newPos = newPos - distance_scale * cam.Front;
+        target.Position=newPos;
+    }
+}
+void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
+
+
+
     ImGui::NewFrame();
+
+
 
     if (gui_param.show_demo_window)
         ImGui::ShowDemoWindow(&gui_param.show_demo_window);
@@ -85,7 +138,14 @@ void RenderMainImGui(Gui_param& gui_param)
 
         ImGuiFileDialog::Instance()->Close();
     }
+
+    //UI交互
+    interaction(target, cam);
+
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+
+
