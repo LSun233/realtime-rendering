@@ -12,8 +12,8 @@
 #include"mesh.h"
 #include"type_define.h"
 #include <iostream>
-
 #include"ui.h"
+#include"primitive/AABB.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -60,7 +60,6 @@ GLFWwindow* creatGLFWwindow()
 int main()
 {
     vector<Mesh> meshList;
-    
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
     Gui_param gui_param= Gui_param();
@@ -69,13 +68,14 @@ int main()
     Mesh  mesh = Mesh(path);
     mesh.name = " bunny1";
     mesh.OnCenter(camera.Position,camera.Front);
+
+
     //设置模型材质
     BPMaterial mat = { 
         glm::vec3(1.0f, 0.5f, 0.31f),   //ambient
         glm::vec3(1.0f, 0.5f, 0.31f),   //diffuse
         glm::vec3(0.5f, 0.5f, 0.5f),    //specular
         32.0f };                         //shininess
-
 
     BPLight light = {
         glm::vec3(2.0,0.7,1.3),                 //postion
@@ -85,14 +85,19 @@ int main()
 
     };
 
+   
+
     // configure global opengl state
     // -----------------------------
-    glEnable(GL_DEPTH_TEST);
+   
 
     // build and compile our shader zprogram
     // ------------------------------------
     BPShader bpShader("../data/shader/blinn_phong.vert", "../data/shader/blinn_phong.frag");
     Shader lightCubeShader("../data/shader/light.vert", "../data/shader/light.frag");
+    Shader simpleShader("../data/shader/simple.vert", "../data/shader/simple.frag");
+
+    boudingBox aabb(mesh.aabb.max, mesh.aabb.min);
 
     // render loop
     // -----------
@@ -117,13 +122,19 @@ int main()
         lastFrame = currentFrame;
 
         // render scene
+        glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 
-       
-
+      
         bpShader.activate(mat, light);
         mesh.Draw(bpShader,mat, light, camera);
+
+        
+        glDisable(GL_DEPTH_TEST);
+        simpleShader.use();
+        aabb.Model = mesh.GetModelMat();
+        aabb.Draw(simpleShader, camera);
 
         // render ui
         RenderMainImGui(gui_param, mesh, camera);
@@ -140,29 +151,16 @@ int main()
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
+
     SCR_WIDTH = width;
     SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
 }
 
-// GLFW滚轮回调
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    // 将滚轮事件传递给 ImGui
 
-   //ImGui_ImplGlfw_ScrollCallback(window, static_cast<float>(xoffset), static_cast<float>(yoffset));
-   
-
-}
 
 
 

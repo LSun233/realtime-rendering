@@ -249,12 +249,8 @@ private:
         aabb.max = glm::vec3(xmax, ymax, zmax);
         aabb.min = glm::vec3(xmin, ymin, zmin);
         aabb.center = 0.5f * (aabb.max + aabb.min);
-        aabb.max -= aabb.center;
-        aabb.min -= aabb.center;
+        //aabb.max -= aabb.center;
+        //aabb.min -= aabb.center;
     }
-
-
-   
-
 };
 #endif

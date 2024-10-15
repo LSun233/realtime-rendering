@@ -173,6 +173,7 @@
     <ClInclude Include="imgui\stb\stb_image_resize.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="PLY.h" />
+    <ClInclude Include="primitive\AABB.h" />
     <ClInclude Include="shader_m.h" />
     <ClInclude Include="type_define.h" />
     <ClInclude Include="ui.h" />

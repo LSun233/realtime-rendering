@@ -45,11 +45,39 @@ struct BPLight {
 
 struct AABB
 {
+public:
     glm::vec3 max = glm::vec3(-9999999.0f, -9999999.0f, -9999999.0f);
     glm::vec3 min = glm::vec3(9999999.0f, 9999999.0f, 9999999.0f);
     glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);;
 
 };
+
+// 光线
+typedef struct Ray {
+    glm::vec3 startPoint = glm::vec3(0, 0, 0);    // 起点
+    glm::vec3 direction = glm::vec3(0, 0, 0);     // 方向
+} Ray;
+
+struct Triangle {
+    glm::vec3 p1, p2, p3;   // 三点
+    glm::vec3 center;       // 中心
+    int index;              //面片的索引
+
+    Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c)
+    {
+        p1 = a, p2 = b, p3 = c;
+        center = (p1 + p2 + p3) / glm::vec3(3, 3, 3);
+    }
+};
+
+struct HitResult {
+    Triangle* triangle = NULL;
+    float distance = INF;
+    int index = -1;
+};
+
+
+
 struct Gui_param
 {
     Gui_param() {};
@@ -66,4 +94,5 @@ struct Gui_param
 };
  unsigned int SCR_WIDTH = 800;
  unsigned int SCR_HEIGHT = 600;
+
 
