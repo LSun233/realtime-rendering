@@ -8,9 +8,9 @@
 #include <vector>
 #include"PLY.h"
 #include"type_define.h"
-
-
-
+#include"BVH.h"
+#include"primitive/line.h"
+#include"primitive/AABB.h"
 class Mesh {
 public:
     // mesh Data
@@ -22,8 +22,12 @@ public:
     glm::vec3 Scale;
     glm::mat4 model;
     glm::qua<float> Rotation_qua;
+
+    vector<Triangle*> hitRes;
+    std::vector<Line> debug_line;
  
     AABB aabb;
+    BVH::BVH* bvh;
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
     {
@@ -41,12 +45,16 @@ public:
     {
         this->textures = textures;
     }
+    void DrawBVH(Shader& shader, Camera& cam)
+    {
+        DrawBVH(shader, cam, bvh->BVHRoot);
+    }
+   
 
-    // render the mesh
     void Draw(Shader& shader, BPMaterial& mat, BPLight& light, Camera& cam)
     {
         shader.setVec3("viewPos", cam.Position);
-        glm::mat4 projection = glm::perspective(glm::radians(cam.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = cam.GetPerspectiveMatrix();
         glm::mat4 view = cam.GetViewMatrix();
 
         shader.setMat4("model", GetModelMat());
@@ -147,13 +155,12 @@ public:
         glm::vec3 center_in_world = Position + aabb.center;
         glm::vec3 move = center_target_postion - center_in_world;
         translate(move);
-
-
     }
     ~Mesh()
     {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
+        delete bvh;
     }
 private:
     // render data 
@@ -161,13 +168,33 @@ private:
     glm::vec3 Position;
     unsigned int VAO,VBO, EBO;
     // initializes all the buffer objects/arrays
+    void DrawBVH(Shader& shader, Camera& cam, BVH::BVHNode* BVHRoot)
+    {
+        if (BVHRoot == NULL)
+        {
+            std::cout << "节点为空" << std::endl;
+            return;
+        }
+           
+        boudingBox bbox(BVHRoot->aabb.max, BVHRoot->aabb.min);
+        bbox.Model = GetModelMat();
+        bbox.Draw(shader, cam);
+        if (BVHRoot->n > 0)   //叶子节点 
+        {
+            return;
+        }
+        else
+        {
+            DrawBVH(shader, cam, BVHRoot->left);
+            DrawBVH(shader, cam, BVHRoot->right);
+        }
+    }
     void setupMesh()
     {
         // create buffers/arrays
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
-
         glBindVertexArray(VAO);
         // load data into vertex buffers
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -216,6 +243,8 @@ private:
         model = glm::translate(model, Position);
         model = glm::scale(model, Scale);
 
+        CreatBVH();
+
     }
     void GetAABB()
     {
@@ -251,6 +280,12 @@ private:
         aabb.center = 0.5f * (aabb.max + aabb.min);
         //aabb.max -= aabb.center;
         //aabb.min -= aabb.center;
+    }
+    // render the mesh
+    
+    void CreatBVH()
+    {
+        bvh = new BVH::BVH(vertices, indices);
     }
 };
 #endif

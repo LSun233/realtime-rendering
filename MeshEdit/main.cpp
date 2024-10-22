@@ -14,11 +14,14 @@
 #include <iostream>
 #include"ui.h"
 #include"primitive/AABB.h"
+#include"primitive/trianglFace.h"
+#include"BVH.h"
+#include"primitive/line.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -69,6 +72,7 @@ int main()
     mesh.name = " bunny1";
     mesh.OnCenter(camera.Position,camera.Front);
 
+  
 
     //设置模型材质
     BPMaterial mat = { 
@@ -86,7 +90,6 @@ int main()
     };
 
    
-
     // configure global opengl state
     // -----------------------------
    
@@ -121,6 +124,7 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+
         // render scene
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -129,12 +133,41 @@ int main()
       
         bpShader.activate(mat, light);
         mesh.Draw(bpShader,mat, light, camera);
+       // mesh.DrawBVH(simpleShader, camera);
+
+
 
         
+       
+       
+
+
+
+        //aabb.Model = mesh.GetModelMat();
+        //aabb.Draw(simpleShader, camera);
+
+
+
+
+
+
+        ////render hit triangles
         glDisable(GL_DEPTH_TEST);
-        simpleShader.use();
-        aabb.Model = mesh.GetModelMat();
-        aabb.Draw(simpleShader, camera);
+      
+        for (int i = 0; i < mesh.hitRes.size(); i++)
+        {
+            
+            simpleShader.use();
+            TriangleFace  tri(mesh.hitRes[i]->p1, mesh.hitRes[i]->p2, mesh.hitRes[i]->p3);
+            tri.Model= mesh.GetModelMat();
+            tri.Draw(simpleShader, camera);
+        }
+        //std::cout << mesh.debug_line.size() << std::endl;
+        //for (int i = 0; i < mesh.debug_line.size(); i++)
+        //{
+        //    mesh.debug_line[i].Model= mesh.GetModelMat();
+        //    mesh.debug_line[i].Draw(simpleShader, camera);
+        //}
 
         // render ui
         RenderMainImGui(gui_param, mesh, camera);

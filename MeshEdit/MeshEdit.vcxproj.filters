@@ -116,6 +116,12 @@
     <ClInclude Include="primitive\AABB.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="primitive\trianglFace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="primitive\line.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader\blinn_phong.vert">

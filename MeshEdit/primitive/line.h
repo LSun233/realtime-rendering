@@ -1,4 +1,6 @@
-﻿#pragma once
+
+#ifndef LINE_H
+#define LINE_H
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include"../type_define.h"
@@ -6,7 +8,7 @@
 #include <glad/glad.h>
 #include "../shader_m.h"
 #include"../camera.h"
-class boudingBox {
+class  Line {
 public:
     // mesh Data
     vector<Vertex>       vertices;
@@ -14,40 +16,25 @@ public:
     vector<Texture>      textures;
     glm::mat4 Model;
     string name;
-
     // constructor
-    boudingBox(glm::vec3 max, glm::vec3 min)
+    Line(glm::vec3 vertex1, glm::vec3 vertex2)
     {
-        Vertex v1,v2,v3,v4,v5,v6,v7,v8;
-        v1.Position = max;
-        v2.Position = glm::vec3(max.x,min.y,max.z);
-        v3.Position = glm::vec3(min.x, min.y, max.z);
-        v4.Position = glm::vec3(min.x, max.y, max.z);
-
-        v5.Position = glm::vec3(max.x, max.y, min.z);
-        v6.Position = glm::vec3(max.x, min.y, min.z);
-        v7.Position = glm::vec3(min.x, min.y, min.z);
-        v8.Position = glm::vec3(min.x, max.y, min.z);
-
-        this->vertices = {v1,v2,v3,v4,v5,v6,v7,v8};
+        Vertex v1, v2;
+        v1.Position = vertex1;
+        v2.Position = vertex2;
+        
+        this->vertices = { v1,v2 };
         this->indices = {
-            0,1, 1,2, 2,3, 3,0, 
-            4,5, 5,6, 6,7, 7,4,
-            0,4,1,5,2,6,3,7
+            0,1
         };
         setupMesh();
 
         Model = glm::mat4(1.0f);
     }
 
-
-
-
     // render the mesh
-    void Draw(Shader& shader,   Camera& cam)
+    void Draw(Shader& shader, Camera& cam)
     {
-        glDisable(GL_DEPTH_TEST);
-        shader.use();
         shader.setVec3("viewPos", cam.Position);
         glm::mat4 projection = glm::perspective(glm::radians(cam.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = cam.GetViewMatrix();
@@ -62,7 +49,7 @@ public:
         glBindVertexArray(0);
 
     }
-    ~boudingBox()
+    ~Line()
     {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
@@ -97,6 +84,7 @@ private:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
     }
-  
+
 
 };
+#endif

@@ -4,10 +4,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include"imgui/ImGuiFileDialog.h"
-
-// Helper to wire demo markers located in code to an interactive browser
-
-// Helper to wire demo markers located in code to an interactive browser
+#include"primitive/line.h"
 
 
 void init_imgui(GLFWwindow* window)
@@ -28,18 +25,46 @@ void init_imgui(GLFWwindow* window)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
-void interaction(Mesh& target, Camera& cam)
+ImVec2 dragStartPos;
+bool isDragging = false;
+void interaction(Mesh& target, Camera& cam, Gui_param& gui_param)
 {
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
     ImVec2 Menue_size = ImVec2(screen_size.x / 5, screen_size.y / 3);
     ImVec2 Menue_pos = ImVec2(screen_size.x - Menue_size.x, 0);
     ImGuiIO& io = ImGui::GetIO();
-
+    if (io.MouseClicked[0] != 0)
+    {
+        if (gui_param.pick)
+        {
+            // 将屏幕像素坐标转换为归一化设备坐标
+            float ndcX = (io.MouseClickedPos[0].x-0.5* SCR_WIDTH) / (0.5*SCR_WIDTH);
+            float ndcY = -(io.MouseClickedPos[0].y - 0.5 * SCR_HEIGHT)/ (0.5 * SCR_HEIGHT);
+            float h = tan(glm::radians(cam.Zoom*0.5f));
+            float w = (h * SCR_WIDTH) / SCR_HEIGHT;
+            glm::vec3 viewSpace = glm::vec3(ndcX*w, ndcY*h,-1);
+            glm::vec3 rep = cam.GetPerspectiveMatrix() * glm::vec4(viewSpace, 1.0);
+            glm::vec3 worldSpace = glm::inverse(cam.GetViewMatrix()) * glm::vec4(viewSpace,  1.0);
+            glm::vec3 modelSpace = glm::inverse(target.GetModelMat()) * glm::vec4(worldSpace, 1.0);
+            glm::vec4 reproject= cam.GetPerspectiveMatrix()*cam.GetViewMatrix()*target.GetModelMat()*glm::vec4(modelSpace, 1.0);
+            glm::vec3 camPos= glm::inverse(target.GetModelMat()) * glm::vec4(cam.Position, 1.0);
+            glm::vec3 rayDirection = glm:: normalize(modelSpace- camPos);
+            Ray ray = Ray(camPos, rayDirection);
+           
+            //在模型空间求交
+            HitResult res= target.bvh->hit(ray);
+            if (res.triangle == NULL)
+            {
+                return;
+                std::cout << "没有交点" << std::endl;
+            }
+            target.hitRes.push_back(res.triangle);
+        }
+    }
     if (io.MouseDown[0])
     {
         if (io.MousePos.y >0  )
         {
-          
             float angle = io.MouseDelta.y*glm::radians(0.1f); // 
             glm::vec4 axis = glm::inverse(target.GetModelMat()) * glm::vec4(cam.Right, 0);
             target.rotation( glm::vec3(axis.x, axis.y, axis.z), angle);
@@ -63,7 +88,6 @@ void interaction(Mesh& target, Camera& cam)
     }
 
     float wheel = ImGui::GetIO().MouseWheel;
-  
     float distance_scale = 0.1f;
     if (io.MouseWheel > 0)
     {
@@ -121,6 +145,9 @@ void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
     ImGui::SameLine();
     ImGui::Checkbox("shadow_debug", &gui_param.shadow_debug);
     ImGui::SameLine();
+    ImGui::Checkbox("pick", &gui_param.pick);
+    ImGui::SameLine();
+    ImGui::Checkbox("pick_drag", &gui_param.pick_drag);
    
     if (ImGui::Button("Import model"))
         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".obj", ".");
@@ -152,7 +179,7 @@ void RenderMainImGui(Gui_param& gui_param, Mesh& target, Camera& cam)
     }
 
     //UI交互
-    interaction(target, cam);
+    interaction(target, cam, gui_param);
 
     ImGui::End();
     ImGui::Render();

@@ -1,10 +1,11 @@
-#pragma once
-
+#ifndef TYPE_DEFINE_H
+#define TYPE_DEFINE_H
 #include <glm/glm.hpp>
 #include <vector>
 using namespace std;
 #define MAX_BONE_INFLUENCE 4
 #define INF 9999999.0
+
 struct Vertex {
     // position
     glm::vec3 Position;
@@ -46,6 +47,7 @@ struct BPLight {
 struct AABB
 {
 public:
+    AABB() {};
     glm::vec3 max = glm::vec3(-9999999.0f, -9999999.0f, -9999999.0f);
     glm::vec3 min = glm::vec3(9999999.0f, 9999999.0f, 9999999.0f);
     glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);;
@@ -54,6 +56,7 @@ public:
 
 // 光线
 typedef struct Ray {
+
     glm::vec3 startPoint = glm::vec3(0, 0, 0);    // 起点
     glm::vec3 direction = glm::vec3(0, 0, 0);     // 方向
 } Ray;
@@ -67,6 +70,7 @@ struct Triangle {
     {
         p1 = a, p2 = b, p3 = c;
         center = (p1 + p2 + p3) / glm::vec3(3, 3, 3);
+        index = -1;
     }
 };
 
@@ -88,11 +92,15 @@ struct Gui_param
     bool hard_shadow = false;
     bool shadow_debug = false;
     bool back_ground = true;
+    bool pick = false;
+    bool pick_drag = false;
     float fps = 0;                           //显示帧率
     float alpha = 1.0f;
     string filePath = "";                    //当前加载路径
 };
  unsigned int SCR_WIDTH = 800;
- unsigned int SCR_HEIGHT = 600;
+ unsigned int SCR_HEIGHT = 450;
 
+
+#endif
 

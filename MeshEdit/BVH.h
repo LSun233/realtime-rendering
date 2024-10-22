@@ -2,6 +2,7 @@
 #include"type_define.h"
 #include<vector>
 #include <algorithm>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -14,16 +15,31 @@ namespace BVH
         AABB aabb;                // 碰撞盒
     };
 
+
+    // 按照三角形中心排序 -- 比较函数
+    bool cmpx(const Triangle& t1, const Triangle& t2) {
+        return t1.center.x < t2.center.x;
+    }
+    bool cmpy(const Triangle& t1, const Triangle& t2) {
+        return t1.center.y < t2.center.y;
+    }
+    bool cmpz(const Triangle& t1, const Triangle& t2) {
+        return t1.center.z < t2.center.z;
+    }
+
+
 class BVH
 {
     public:
-
-    private:
-        std::vector<Triangle> Triangles;
         BVHNode* BVHRoot;
+        std::vector<Triangle> Triangles;
+    private:
+        
+       
     public:
-        BVH(vector<Vertex>&vertices,vector<unsigned int>& indices)
+        BVH(const vector<Vertex>&vertices,const vector<unsigned int>& indices)
         {
+            std::cout << "创建BVH" << std::endl;
             //生成三角面
             for (int i = 0; i < indices.size(); i += 3)
             {
@@ -35,14 +51,16 @@ class BVH
                 Triangles.push_back(tri);
             }
             //构建bvh树
+            creat(20);
         };
         void creat(int N)  //叶子系节点的三角面片数量
         {
-            BVHRoot = buildBVH(Triangles, 0, Triangles.size() - 1, N);
+            BVHRoot = buildBVH(Triangles, 0, Triangles.size()-1, N);
         }
         HitResult hit(Ray ray)
         {
             HitResult hr = hitBVH(ray, Triangles, BVHRoot);
+            return hr;
         }
         ~BVH()
         {
@@ -50,7 +68,7 @@ class BVH
 
         private:
             // 构建 BVH
-            BVHNode* buildBVH(std::vector<Triangle>& triangles, int l, int r, int n) {
+            BVHNode* buildBVH( std::vector<Triangle>& triangles, int l, int r, int n) {
                 if (l > r) return 0;
 
                 BVHNode* node = new BVHNode();
@@ -151,7 +169,7 @@ class BVH
                 return INF;
             }
             // 暴力查数组
-            HitResult hitTriangleArray(Ray ray, std::vector<Triangle>& triangles, int l, int r) 
+            HitResult hitTriangleArray(Ray ray,  std::vector<Triangle>& triangles, int l, int r) 
             {
                 HitResult res;
                 for (int i = l; i <= r; i++) {
@@ -159,6 +177,8 @@ class BVH
                     if (d < INF && d < res.distance) {
                         res.distance = d;
                         res.triangle = &triangles[i];
+                        
+
                     }
                 }
                 return res;
@@ -175,7 +195,7 @@ class BVH
                 }
 
                 // 和左右子树 AABB 求交
-                float d1 = INF, d2 = INF;
+                float d1 = INF, d2 =  INF;
                 if (root->left) d1 = hitAABB(ray, root->left->aabb.min, root->left->aabb.max);
                 if (root->right) d2 = hitAABB(ray, root->right->aabb.min, root->right->aabb.max);
 
@@ -187,18 +207,8 @@ class BVH
                 return r1.distance < r2.distance ? r1 : r2;
             }
 
-            // 按照三角形中心排序 -- 比较函数
-            bool cmpx(const Triangle& t1, const Triangle& t2) {
-                return t1.center.x < t2.center.x;
-            }
-            bool cmpy(const Triangle& t1, const Triangle& t2) {
-                return t1.center.y < t2.center.y;
-            }
-            bool cmpz(const Triangle& t1, const Triangle& t2) {
-                return t1.center.z < t2.center.z;
-            }
-};
 
+};
 
 
 }
