@@ -47,7 +47,7 @@ class BVH
                 glm::vec3 b = vertices[indices[i+1]].Position;
                 glm::vec3 c = vertices[indices[i+2]].Position;
                 Triangle tri = Triangle(a, b, c);
-                tri.index = i % 3;
+                tri.index = i / 3;
                 Triangles.push_back(tri);
             }
             //¹¹½¨bvhÊ÷

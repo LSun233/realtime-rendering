@@ -50,7 +50,6 @@ void interaction(Mesh& target, Camera& cam, Gui_param& gui_param)
             glm::vec3 camPos= glm::inverse(target.GetModelMat()) * glm::vec4(cam.Position, 1.0);
             glm::vec3 rayDirection = glm:: normalize(modelSpace- camPos);
             Ray ray = Ray(camPos, rayDirection);
-           
             //在模型空间求交
             HitResult res= target.bvh->hit(ray);
             if (res.triangle == NULL)
@@ -58,7 +57,17 @@ void interaction(Mesh& target, Camera& cam, Gui_param& gui_param)
                 return;
                 std::cout << "没有交点" << std::endl;
             }
+            target.hitRes.clear();
             target.hitRes.push_back(res.triangle);
+
+            //找到相邻的三角面
+            std::cout << "hit face index:" << res.triangle->index << std::endl;
+            int target_face = res.triangle->index;
+
+            target.suroundingFace.clear();
+            target.halfEdge->findSurroundingFaces(target_face,target.suroundingFace);
+
+
         }
     }
     if (io.MouseDown[0])

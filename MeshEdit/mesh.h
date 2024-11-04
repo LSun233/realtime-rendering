@@ -9,6 +9,7 @@
 #include"PLY.h"
 #include"type_define.h"
 #include"BVH.h"
+#include"halfEdge.h"
 #include"primitive/line.h"
 #include"primitive/AABB.h"
 class Mesh {
@@ -24,10 +25,14 @@ public:
     glm::qua<float> Rotation_qua;
 
     vector<Triangle*> hitRes;
+    vector<int> suroundingFace;
     std::vector<Line> debug_line;
  
     AABB aabb;
     BVH::BVH* bvh;
+    HalfEdge::HalfEdgeMesh* halfEdge;
+
+
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
     {
@@ -161,6 +166,7 @@ public:
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
         delete bvh;
+
     }
 private:
     // render data 
@@ -244,6 +250,7 @@ private:
         model = glm::scale(model, Scale);
 
         CreatBVH();
+        CreatHalfEdgeMesh();
 
     }
     void GetAABB()
@@ -286,6 +293,11 @@ private:
     void CreatBVH()
     {
         bvh = new BVH::BVH(vertices, indices);
+    }
+    void CreatHalfEdgeMesh()
+    {
+        halfEdge = new HalfEdge::HalfEdgeMesh(vertices.size(), indices);
+        std::cout << "face num: " << halfEdge->m_faces.size() << std::endl;
     }
 };
 #endif

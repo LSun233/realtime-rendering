@@ -73,7 +73,6 @@ int main()
     mesh.OnCenter(camera.Position,camera.Front);
 
   
-
     //设置模型材质
     BPMaterial mat = { 
         glm::vec3(1.0f, 0.5f, 0.31f),   //ambient
@@ -130,24 +129,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 
-      
+     
         bpShader.activate(mat, light);
         mesh.Draw(bpShader,mat, light, camera);
        // mesh.DrawBVH(simpleShader, camera);
 
-
-
-        
-       
-       
-
-
-
         //aabb.Model = mesh.GetModelMat();
         //aabb.Draw(simpleShader, camera);
-
-
-
 
 
 
@@ -158,9 +146,30 @@ int main()
         {
             
             simpleShader.use();
+            simpleShader.setVec4("color", 1.0, 1.0, 1.0, 1.0);
             TriangleFace  tri(mesh.hitRes[i]->p1, mesh.hitRes[i]->p2, mesh.hitRes[i]->p3);
             tri.Model= mesh.GetModelMat();
             tri.Draw(simpleShader, camera);
+        }
+
+        std::cout <<"size():"<< mesh.suroundingFace.size() << std::endl;
+        for (int i = 0; i < mesh.suroundingFace.size(); i++)
+        {
+            int tri_index = mesh.suroundingFace[i];
+            int i1 = mesh.indices[3 * tri_index];
+            int i2 = mesh.indices[3 * tri_index + 1];
+            int i3 = mesh.indices[3 * tri_index + 2];
+
+            glm::vec3 v1 = mesh.vertices[i1].Position;
+            glm::vec3 v2 = mesh.vertices[i2].Position;
+            glm::vec3 v3 = mesh.vertices[i3].Position;
+
+            simpleShader.use();
+            simpleShader.setVec4("color",1.0,1.0,0,1.0);
+            TriangleFace  tri(v1, v2, v3);
+            tri.Model = mesh.GetModelMat();
+            tri.Draw(simpleShader, camera);
+
         }
         //std::cout << mesh.debug_line.size() << std::endl;
         //for (int i = 0; i < mesh.debug_line.size(); i++)

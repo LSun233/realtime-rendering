@@ -159,6 +159,7 @@
     <ClInclude Include="BPShader.h" />
     <ClInclude Include="BVH.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="halfEdge.h" />
     <ClInclude Include="imgui\dirent\dirent.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
