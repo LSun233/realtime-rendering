@@ -14,7 +14,6 @@ void plyRead(std::string path, std::vector<Vertex>& vertices, std:: vector<unsig
         return ;
     }
 
-
     std::string line;
     int vertexCount = 0,faceCount = 0;
     string temp;
@@ -45,9 +44,6 @@ void plyRead(std::string path, std::vector<Vertex>& vertices, std:: vector<unsig
         std::istringstream iss(line);
         Vertex vertex;
         iss >> vertex.Position[0] >> vertex.Position[1] >> vertex.Position[2];
-  /*      vertex.Position[0]= 1000 * vertex.Position[0];
-        vertex.Position[1] = 1000 * vertex.Position[1];
-        vertex.Position[2] = 1000 * vertex.Position[2];*/
         if (flagNormal)
         {
             iss >> vertex.Normal[0] >> vertex.Normal[1] >> vertex.Normal[2];

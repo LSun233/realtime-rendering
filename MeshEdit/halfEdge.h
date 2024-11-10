@@ -27,8 +27,6 @@ public:
 };
 namespace HalfEdge
 {
-
-
     class HalfEdgeMesh 
     {
         public:
@@ -36,7 +34,6 @@ namespace HalfEdge
             std::vector<HeVertex> m_vertices;
             std::vector<HeFace*> m_faces;
             std::vector<HeEdge*> m_halfEdges;
-
         public:
             HalfEdgeMesh(int num, const std::vector<unsigned int>& indices)
             {
@@ -50,14 +47,12 @@ namespace HalfEdge
                 }
 
                 //ÃÌº”√Ê”Î∞Î±ﬂ
-             
                 for (int i = 0; i < indices.size(); i+=3)
                 {
                     std::vector<unsigned int> vertexIndices = { indices[i],indices[i+1],indices[i+2] };
                  
                     addFace(vertexIndices,i/3);
                 }
-    
             }
             void findSurroundingFaces(int index, std::vector<int>& surroundingFace)
             {
@@ -74,16 +69,24 @@ namespace HalfEdge
                     }
                 } while (edge != startEdge);
             }
-
             void findSurroundingVertices(int index, std::vector<int>& surroundingVertices)
             {
+                HeVertex Targetvetex = m_vertices[index];
+                HeEdge* startEdge = Targetvetex.edge;
+                HeEdge* edge = startEdge;
+                do {
 
+                    if ((edge != nullptr))
+                    {
+                        if ((edge->twin != nullptr))//±‹√‚±ﬂ‘µµƒ±ﬂ
+                            surroundingVertices.push_back(edge->next->origin->index);
+                        edge = edge->twin->next;
+                    }
+                } while (edge != startEdge);
             }
     private:
         void addFace(const std::vector<unsigned int>& vertexIndices, int index)
         {
-            //std::cout << index << std::endl;
-            
             if (vertexIndices.size() != 3)
             {
                 throw std::invalid_argument("Only triangular faces are supported.");
@@ -100,7 +103,6 @@ namespace HalfEdge
             firstPtr->face = newFace;
             secPtr->face = newFace;
             thirdPtr->face = newFace;
-        
 
             //√Êµƒ±ﬂ
             newFace->edge = thirdPtr;
@@ -120,59 +122,42 @@ namespace HalfEdge
             secPtr->next = thirdPtr;
             thirdPtr->next = firstPtr;
 
-
-
             for (HeEdge* edge : m_halfEdges)
             {
-                if (edge->next != nullptr) //≈≈≥˝±ﬂ‘µ
+                if (edge->next != nullptr) 
                 {
                     if (edge->origin->index == m_vertices[vertexIndices[1]].index && edge->next->origin->index == m_vertices[vertexIndices[0]].index)
                     {
-
                         firstPtr->twin = edge;
                         edge->twin = firstPtr;
-                        std::cout << "twin" << std::endl;
                         break;
                     }
                 }
-                else std::cout << "±ﬂ‘µ" << std::endl;
-
             }
-
             for (HeEdge* edge : m_halfEdges)
             {
-                if (edge->next != nullptr) //≈≈≥˝±ﬂ‘µ
+                if (edge->next != nullptr) 
                 {
                     if (edge->origin->index == m_vertices[vertexIndices[2]].index && edge->next->origin->index == m_vertices[vertexIndices[1]].index)
                     {
-
                         secPtr->twin = edge;
                         edge->twin = secPtr;
-                        std::cout << "twin" << std::endl;
+                 
                         break;
                     }
                 }
-                else  std::cout << "±ﬂ‘µ" << std::endl;
-
             }
-
-            for (HeEdge* edge : m_halfEdges)
-            {
-                if (edge->next != nullptr) //≈≈≥˝±ﬂ‘µ
-                {
+            for (HeEdge* edge : m_halfEdges){
+                if (edge->next != nullptr) {
                     if (edge->origin->index == m_vertices[vertexIndices[0]].index && edge->next->origin->index == m_vertices[vertexIndices[2]].index)
                     {
-
                         thirdPtr->twin = edge;
                         edge->twin = thirdPtr;
-                        std::cout << "twin" << std::endl;
+                   
                         break;
                     }
                 }
-                else std::cout << "±ﬂ‘µ" << std::endl;
             }
-    
-
             m_halfEdges.push_back(firstPtr);
             m_halfEdges.push_back(secPtr);
             m_halfEdges.push_back(thirdPtr);

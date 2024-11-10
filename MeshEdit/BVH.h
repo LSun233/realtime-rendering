@@ -15,7 +15,6 @@ namespace BVH
         AABB aabb;                // 碰撞盒
     };
 
-
     // 按照三角形中心排序 -- 比较函数
     bool cmpx(const Triangle& t1, const Triangle& t2) {
         return t1.center.x < t2.center.x;
@@ -39,7 +38,6 @@ class BVH
     public:
         BVH(const vector<Vertex>&vertices,const vector<unsigned int>& indices)
         {
-            std::cout << "创建BVH" << std::endl;
             //生成三角面
             for (int i = 0; i < indices.size(); i += 3)
             {

@@ -44,6 +44,11 @@ struct BPLight {
     glm::vec3 specular;
 };
 
+enum class ShaderType {
+    BlingPhong,BRDF,Simple
+};
+
+
 struct AABB
 {
 public:
@@ -82,22 +87,9 @@ struct HitResult {
 
 
 
-struct Gui_param
-{
-    Gui_param() {};
-    float clear_color[4]{ 0.45f, 0.55f, 0.60f, 1.00f };
-    bool show_demo_window = false;         //imgui demo 窗口控制
-    bool wire_mode = false;                //线框模式
-    bool SSA0 = false;
-    bool hard_shadow = false;
-    bool shadow_debug = false;
-    bool back_ground = true;
-    bool pick = false;
-    bool pick_drag = false;
-    float fps = 0;                           //显示帧率
-    float alpha = 1.0f;
-    string filePath = "";                    //当前加载路径
-};
+
+
+
  unsigned int SCR_WIDTH = 800;
  unsigned int SCR_HEIGHT = 450;
 

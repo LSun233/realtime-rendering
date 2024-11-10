@@ -1,22 +1,22 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/vec1.hpp> 
-
-#include "shader_m.h"
-#include"BPShader.h"
+#include "shader/shader_m.h"
+#include"shader/BPShader.h"
+#include"shader/SimpleShader.h"
 #include "camera.h"
-#include"mesh.h"
+#include"mesh/mesh.h"
 #include"type_define.h"
 #include <iostream>
-#include"ui.h"
-#include"primitive/AABB.h"
-#include"primitive/trianglFace.h"
+#include"UI/ui.h"
+#include"mesh/primitive/AABB.h"
+#include"mesh/primitive/trianglFace.h"
 #include"BVH.h"
-#include"primitive/line.h"
+#include"mesh/primitive/line.h"
+#include"UI/UIParam.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -32,7 +32,6 @@ float lastFrame = 0.0f;
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
 GLFWwindow* creatGLFWwindow()
 {
     glfwInit();
@@ -57,129 +56,72 @@ GLFWwindow* creatGLFWwindow()
     glEnable(GL_DEPTH_TEST);
     return window;
 }
-
-
-
 int main()
 {
-    vector<Mesh> meshList;
+    vector<MeshBase*> meshList;
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
-    Gui_param gui_param= Gui_param();
+   
+    UIParam* ui_param = UIParam::getInstance();
+
     //读入模型数据
-    string path = "C:/Users/孙龙/Desktop/bunny1.ply";
+    string path = "../data/model/bunny1.ply";
+
     Mesh  mesh = Mesh(path);
     mesh.name = " bunny1";
-    mesh.OnCenter(camera.Position,camera.Front);
+   // mesh.OnCenter(camera.Position,camera.Front);
+    //meshList.push_back(mesh);
 
-  
-    //设置模型材质
-    BPMaterial mat = { 
-        glm::vec3(1.0f, 0.5f, 0.31f),   //ambient
-        glm::vec3(1.0f, 0.5f, 0.31f),   //diffuse
-        glm::vec3(0.5f, 0.5f, 0.5f),    //specular
-        32.0f };                         //shininess
+    //BPShader bpShader;
+    //SimpleShader simpleShader;
 
-    BPLight light = {
-        glm::vec3(2.0,0.7,1.3),                 //postion
-        glm::vec3(2.0,0.7,1.3) * glm::vec3(0.1f),//ambient
-        glm::vec3(2.0,0.7,1.3) * glm::vec3(0.5f),//diffuse
-        glm::vec3(1.0,1.0,1.0)                     //specular
-
-    };
-
-   
-    // configure global opengl state
-    // -----------------------------
-   
-
-    // build and compile our shader zprogram
-    // ------------------------------------
-    BPShader bpShader("../data/shader/blinn_phong.vert", "../data/shader/blinn_phong.frag");
-    Shader lightCubeShader("../data/shader/light.vert", "../data/shader/light.frag");
-    Shader simpleShader("../data/shader/simple.vert", "../data/shader/simple.frag");
-
-    boudingBox aabb(mesh.aabb.max, mesh.aabb.min);
-
-    // render loop
-    // -----------
+    //meshList.push_back(&mesh);
     while (!glfwWindowShouldClose(window))
     {
-        // input
-     
-
         // render
         // ------
-        if (gui_param.wire_mode)
+        if (ui_param->wire_mode)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        ImVec4 clear_color = ImVec4(gui_param.clear_color[0], gui_param.clear_color[1], gui_param.clear_color[2], gui_param.clear_color[3]);
+        if (ui_param->filePath != "")
+        {
+            Mesh*  mesh1 =new  Mesh(ui_param->filePath);
+            meshList.push_back(mesh1);
+            ui_param->filePath = "";
+        }
+
+        ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         
         // per-frame time logic
         // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
+        ui_param->fps = 1.0 / deltaTime;
         lastFrame = currentFrame;
-
 
         // render scene
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-
+        for (int i = 0; i < meshList.size(); i++)
+        {
+            meshList[i]->Draw(camera);
+        }
      
-        bpShader.activate(mat, light);
-        mesh.Draw(bpShader,mat, light, camera);
-       // mesh.DrawBVH(simpleShader, camera);
-
-        //aabb.Model = mesh.GetModelMat();
-        //aabb.Draw(simpleShader, camera);
-
-
-
-        ////render hit triangles
-        glDisable(GL_DEPTH_TEST);
-      
-        for (int i = 0; i < mesh.hitRes.size(); i++)
-        {
-            
-            simpleShader.use();
-            simpleShader.setVec4("color", 1.0, 1.0, 1.0, 1.0);
-            TriangleFace  tri(mesh.hitRes[i]->p1, mesh.hitRes[i]->p2, mesh.hitRes[i]->p3);
-            tri.Model= mesh.GetModelMat();
-            tri.Draw(simpleShader, camera);
-        }
-
-        std::cout <<"size():"<< mesh.suroundingFace.size() << std::endl;
-        for (int i = 0; i < mesh.suroundingFace.size(); i++)
-        {
-            int tri_index = mesh.suroundingFace[i];
-            int i1 = mesh.indices[3 * tri_index];
-            int i2 = mesh.indices[3 * tri_index + 1];
-            int i3 = mesh.indices[3 * tri_index + 2];
-
-            glm::vec3 v1 = mesh.vertices[i1].Position;
-            glm::vec3 v2 = mesh.vertices[i2].Position;
-            glm::vec3 v3 = mesh.vertices[i3].Position;
-
-            simpleShader.use();
-            simpleShader.setVec4("color",1.0,1.0,0,1.0);
-            TriangleFace  tri(v1, v2, v3);
-            tri.Model = mesh.GetModelMat();
-            tri.Draw(simpleShader, camera);
-
-        }
-        //std::cout << mesh.debug_line.size() << std::endl;
-        //for (int i = 0; i < mesh.debug_line.size(); i++)
+        //render hit triangles
+        //glDisable(GL_DEPTH_TEST);
+        //for (int i = 0; i < mesh.hitRes.size(); i++)
         //{
-        //    mesh.debug_line[i].Model= mesh.GetModelMat();
-        //    mesh.debug_line[i].Draw(simpleShader, camera);
+        //    TriangleFace  tri(mesh.hitRes[i]->p1, mesh.hitRes[i]->p2, mesh.hitRes[i]->p3);
+        //    tri.model= mesh.GetModelMat();
+        //    glDisable(GL_DEPTH_TEST);
+        //    tri.Draw(camera);
         //}
 
         // render ui
-        RenderMainImGui(gui_param, mesh, camera);
+        RenderMainImGui(meshList, camera);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -192,7 +134,6 @@ int main()
     glfwTerminate();
     return 0;
 }
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
