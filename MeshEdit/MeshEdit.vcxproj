@@ -154,9 +154,13 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="render\skybox\skybox.cpp" />
+    <ClCompile Include="render\skybox\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mesh\MeshBase.h" />
+    <ClInclude Include="render\skybox\skybox.h" />
+    <ClInclude Include="render\skybox\stb_image.h" />
     <ClInclude Include="shader\BPShader.h" />
     <ClInclude Include="BVH.h" />
     <ClInclude Include="camera.h" />

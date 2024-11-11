@@ -7,6 +7,7 @@
 #include"mesh/primitive/line.h"
 #include"UIParam.h"
 
+
 void init_imgui(GLFWwindow* window)
 {
     // Setup Dear ImGui context
@@ -25,7 +26,6 @@ void init_imgui(GLFWwindow* window)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
-
 ImVec2 dragStartPos;
 bool isDragging = false;
 void model_control(vector<MeshBase*> meshList, Camera& cam)
@@ -81,7 +81,6 @@ void model_control(vector<MeshBase*> meshList, Camera& cam)
         target->translate(trans);
     }
 }
-
 void pick(vector<MeshBase*> meshList, Camera& cam)
 {
     UIParam* ui_param = UIParam::getInstance();
@@ -91,10 +90,10 @@ void pick(vector<MeshBase*> meshList, Camera& cam)
         if (ui_param->pick)
         {
             // 将屏幕像素坐标转换为归一化设备坐标
-            float ndcX = (io.MouseClickedPos[0].x - 0.5 * SCR_WIDTH) / (0.5 * SCR_WIDTH);
-            float ndcY = -(io.MouseClickedPos[0].y - 0.5 * SCR_HEIGHT) / (0.5 * SCR_HEIGHT);
+            float ndcX = (io.MouseClickedPos[0].x - 0.5 * ISCR_WIDTH) / (0.5 * ISCR_WIDTH);
+            float ndcY = -(io.MouseClickedPos[0].y - 0.5 * ISCR_HEIGHT) / (0.5 * ISCR_HEIGHT);
             float h = tan(glm::radians(cam.Zoom * 0.5f));
-            float w = (h * SCR_WIDTH) / SCR_HEIGHT;
+            float w = (h * ISCR_WIDTH) / ISCR_HEIGHT;
             glm::vec3 viewSpace = glm::vec3(ndcX * w, ndcY * h, -1);
             glm::vec3 rep = cam.GetPerspectiveMatrix() * glm::vec4(viewSpace, 1.0);
             glm::vec3 worldSpace = glm::inverse(cam.GetViewMatrix()) * glm::vec4(viewSpace, 1.0);
@@ -151,14 +150,42 @@ void pick(vector<MeshBase*> meshList, Camera& cam)
         }
     }
 }
+void  camera_control(Camera& cam)
+{
+    UIParam* ui_param = UIParam::getInstance();
+   
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    ImVec2 Menue_size = ImVec2(screen_size.x / 5, screen_size.y / 3);
+    ImVec2 Menue_pos = ImVec2(screen_size.x - Menue_size.x, 0);
+    ImGuiIO& io = ImGui::GetIO();
 
+    if (io.MouseDown[0])
+    {
+
+        cam.ProcessMouseMovement(io.MouseDelta.x, io.MouseDelta.y);
+    }
+    float wheel = ImGui::GetIO().MouseWheel;
+    float distance_scale = 0.1f;
+    if (io.MouseWheel!=0 )
+    {
+        cam.ProcessMouseScroll(io.MouseWheel);   
+    }
+
+}
 void interaction(vector<MeshBase*> meshList, Camera& cam)
 {
-    
-    model_control(meshList,cam);
+    UIParam* ui_param = UIParam::getInstance();
+    if (ui_param->control_type == 0)
+    {
+        model_control(meshList, cam);
+    }
+    else
+    {
+        camera_control(cam);
+    }
+   
     pick(meshList, cam);
 }
-
 void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
 {
     UIParam* ui_param = UIParam::getInstance();
@@ -207,6 +234,10 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
     ImGui::RadioButton("BRDF", &ui_param->shader_type, 1); ImGui::SameLine();
     ImGui::RadioButton("ray tracing", &ui_param->shader_type, 2);
 
+
+    ImGui::RadioButton("model control", &ui_param->control_type, 0); ImGui::SameLine();
+    ImGui::RadioButton("camera control", &ui_param->control_type, 1); ImGui::SameLine();
+
    
     if (ImGui::Button("Import model"))
         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".ply",  ".");
@@ -218,7 +249,6 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
             while (ui_param->filePath.find('\\') != ui_param->filePath.npos)
             {
                 ui_param->filePath = ui_param->filePath.replace(ui_param->filePath.find('\\'), 1, 1, '/');
-                std::cout << ui_param->filePath << std::endl;
             }
              
         }

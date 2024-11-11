@@ -58,10 +58,6 @@ public:
         shader->setVec3("viewPos", cam.Position);
         shader->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
 
-        // draw mesh
-        glBindVertexArray(VAO);
-        glDrawElements(GL_LINES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
         // draw mesh
         glBindVertexArray(VAO);
@@ -186,7 +182,7 @@ public:
      void CreatHalfEdgeMesh()
      {
          halfEdge = new HalfEdge::HalfEdgeMesh(vertices.size(), indices);
-         std::cout << "face num: " << halfEdge->m_faces.size() << std::endl;
+       
      }
      float hit(Ray r)
      {

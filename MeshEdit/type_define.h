@@ -90,8 +90,8 @@ struct HitResult {
 
 
 
- unsigned int SCR_WIDTH = 800;
- unsigned int SCR_HEIGHT = 450;
+ unsigned int ISCR_WIDTH = 800;
+ unsigned int ISCR_HEIGHT = 450;
 
 
 #endif

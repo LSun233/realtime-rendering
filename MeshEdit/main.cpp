@@ -17,13 +17,13 @@
 #include"BVH.h"
 #include"mesh/primitive/line.h"
 #include"UI/UIParam.h"
-
+#include"render/skybox/skybox.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
+float lastX = ISCR_WIDTH / 2.0f;
+float lastY = ISCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
@@ -46,7 +46,7 @@ GLFWwindow* creatGLFWwindow()
     int monitorCount;
     GLFWmonitor** pMonitor = glfwGetMonitors(&monitorCount);
     const GLFWvidmode* mode = glfwGetVideoMode(pMonitor[0]);
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "MyEngine", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ISCR_WIDTH, ISCR_HEIGHT, "MyEngine", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -58,24 +58,34 @@ GLFWwindow* creatGLFWwindow()
 }
 int main()
 {
+    
+
+    
     vector<MeshBase*> meshList;
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
-   
     UIParam* ui_param = UIParam::getInstance();
-
     //读入模型数据
-    string path = "../data/model/bunny1.ply";
-
-    Mesh  mesh = Mesh(path);
-    mesh.name = " bunny1";
-   // mesh.OnCenter(camera.Position,camera.Front);
-    //meshList.push_back(mesh);
-
-    //BPShader bpShader;
-    //SimpleShader simpleShader;
-
+    string path = "../data/model/dragon.ply";
+    Mesh*  pmesh =new  Mesh(path);
+    pmesh->name = " bunny1";
+   // pmesh->OnCenter(camera.Position,camera.Front);
+    meshList.push_back(pmesh);
     //meshList.push_back(&mesh);
+
+    std::vector<std::string> faces
+    {
+     "../data/skybox/sky/right.jpg",
+     "../data/skybox/sky/left.jpg",
+     "../data/skybox/sky/top.jpg",
+      "../data/skybox/sky/bottom.jpg",
+      "../data/skybox/sky/front.jpg",
+     "../data/skybox/sky/back.jpg"
+    };
+    SkyBox skybox(faces);
+
+
+
     while (!glfwWindowShouldClose(window))
     {
         // render
@@ -109,16 +119,9 @@ int main()
         {
             meshList[i]->Draw(camera);
         }
-     
-        //render hit triangles
-        //glDisable(GL_DEPTH_TEST);
-        //for (int i = 0; i < mesh.hitRes.size(); i++)
-        //{
-        //    TriangleFace  tri(mesh.hitRes[i]->p1, mesh.hitRes[i]->p2, mesh.hitRes[i]->p3);
-        //    tri.model= mesh.GetModelMat();
-        //    glDisable(GL_DEPTH_TEST);
-        //    tri.Draw(camera);
-        //}
+        glEnable(GL_MULTISAMPLE);
+       skybox.Draw(&camera);
+
 
         // render ui
         RenderMainImGui(meshList, camera);
@@ -138,8 +141,8 @@ int main()
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 
-    SCR_WIDTH = width;
-    SCR_HEIGHT = height;
+    ISCR_WIDTH = width;
+    ISCR_HEIGHT = height;
     glViewport(0, 0, width, height);
 }
 

@@ -4,8 +4,6 @@
 #include"../camera.h"
 class SimpleShader : public Shader {
 public:
-    BPMaterial mat;
-    BPLight light;
     SimpleShader(const char* vertexPath= "../data/shader/simple.vert", const char* fragmentPath= "../data/shader/simple.frag") :Shader(vertexPath, fragmentPath)
     {
         shader_type = ShaderType::Simple;

@@ -45,6 +45,12 @@
     <ClCompile Include="imgui\ImGuiFileDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="render\skybox\stb_image.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="render\skybox\skybox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\shader_m.h">
@@ -135,6 +141,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="UI\UIParam.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="render\skybox\stb_image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="render\skybox\skybox.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

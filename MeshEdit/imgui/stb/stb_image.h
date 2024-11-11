@@ -120,8 +120,8 @@ RECENT REVISION HISTORY:
   of the credits.
 */
 
-#ifndef STBI_INCLUDE_STB_IMAGE_H
-#define STBI_INCLUDE_STB_IMAGE_H
+//#ifndef STBI_INCLUDE_STB_IMAGE_H
+//#define STBI_INCLUDE_STB_IMAGE_H
 
 // DOCUMENTATION
 //
@@ -509,7 +509,7 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 //
 //
 ////   end header file   /////////////////////////////////////////////////////
-#endif // STBI_INCLUDE_STB_IMAGE_H
+//#endif // STBI_INCLUDE_STB_IMAGE_H
 
 #ifdef STB_IMAGE_IMPLEMENTATION
 

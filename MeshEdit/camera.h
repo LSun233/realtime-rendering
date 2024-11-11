@@ -17,7 +17,7 @@ enum Camera_Movement {
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
+const float SENSITIVITY = 0.01f;
 const float ZOOM = 45.0f;
 
 
@@ -60,7 +60,7 @@ public:
     glm::mat4 GetPerspectiveMatrix()
     {
        
-        return glm::perspective(glm::radians(Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 1000.0f);
+        return glm::perspective(glm::radians(Zoom), (float)ISCR_WIDTH / (float)ISCR_HEIGHT, 0.01f, 1000.0f);
     }
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix()

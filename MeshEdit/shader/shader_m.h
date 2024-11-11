@@ -80,6 +80,7 @@ public:
 
     void setMVPmatrix(glm::mat4 model, glm::mat4 view,glm::mat4 projection)
     {
+
        setMat4("model", model);
        setMat4("projection", projection);
        setMat4("view", view);
