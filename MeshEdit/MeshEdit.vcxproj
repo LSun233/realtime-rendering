@@ -185,6 +185,7 @@
     <ClInclude Include="mesh\primitive\AABB.h" />
     <ClInclude Include="mesh\primitive\line.h" />
     <ClInclude Include="mesh\primitive\trianglFace.h" />
+    <ClInclude Include="shader\BRDF.h" />
     <ClInclude Include="shader\shader_m.h" />
     <ClInclude Include="shader\SimpleShader.h" />
     <ClInclude Include="type_define.h" />

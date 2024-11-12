@@ -1,6 +1,6 @@
 #include"shader_m.h"
-#include"type_define.h"
-#include"camera.h"
+#include"../type_define.h"
+#include"../camera.h"
 class BPShader : public Shader {
 public:
     BPMaterial mat;
@@ -37,5 +37,6 @@ public:
         setVec3("material.specular", mat.specular);
         setFloat("material.shininess", mat.shininess);
 
+      
     }
 };

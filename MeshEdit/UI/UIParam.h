@@ -46,7 +46,15 @@ public:
     int target_index = 0;
     std::string filePath = "";              //当前加载路径
     int control_type = 0;
+    float roughness = 0.5;
+    float metallic = 0.5;
+    float albedo[3]{ 0.5f, 0.0f, 0.00f };
+
 };
+
+
+
+
 
 // 初始化静态成员变量
 UIParam* UIParam::instance = nullptr;

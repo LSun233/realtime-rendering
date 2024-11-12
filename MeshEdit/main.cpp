@@ -10,7 +10,6 @@
 #include "camera.h"
 #include"mesh/mesh.h"
 #include"type_define.h"
-#include <iostream>
 #include"UI/ui.h"
 #include"mesh/primitive/AABB.h"
 #include"mesh/primitive/trianglFace.h"
@@ -18,6 +17,7 @@
 #include"mesh/primitive/line.h"
 #include"UI/UIParam.h"
 #include"render/skybox/skybox.h"
+#include"shader/BRDF.h";
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // camera
@@ -83,8 +83,8 @@ int main()
      "../data/skybox/sky/back.jpg"
     };
     SkyBox skybox(faces);
-
-
+    BRDF* shaderBRDF = new BRDF();
+    BPShader* shaderBP = new BPShader();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -117,6 +117,20 @@ int main()
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         for (int i = 0; i < meshList.size(); i++)
         {
+            if (ui_param->shader_type ==1)
+            {
+                
+                shaderBRDF->metallic = ui_param->metallic;
+                shaderBRDF->roughness = ui_param->roughness;
+                shaderBRDF->albedo =glm::vec3( ui_param->albedo[0], ui_param->albedo[1], ui_param->albedo[2]);
+                meshList[i]->shader = shaderBRDF;
+                shaderBRDF->setmatrix(meshList[i]->GetModelMat(),camera.Position);
+
+            }
+            else if(ui_param->shader_type ==0)
+            {
+                meshList[i]->shader = shaderBP;
+            }
             meshList[i]->Draw(camera);
         }
         glEnable(GL_MULTISAMPLE);

@@ -43,16 +43,27 @@ void model_control(vector<MeshBase*> meshList, Camera& cam)
     {
         if (io.MousePos.y > 0)
         {
-           
-            float angle = io.MouseDelta.y * glm::radians(0.1f); // 
-            glm::vec4 axis = glm::inverse(target->GetModelMat()) * glm::vec4(cam.Right, 0);
-            target->rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+            bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
+                io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
+            if (!on_menue)
+            {
+                float angle = io.MouseDelta.y * glm::radians(0.1f); // 
+                glm::vec4 axis = glm::inverse(target->GetModelMat()) * glm::vec4(cam.Right, 0);
+                target->rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+            }
+
         }
         if (io.MousePos.x > 0)
         {
-            float angle = io.MouseDelta.x * glm::radians(0.1f); // 
-            glm::vec4 axis = glm::inverse(target->GetModelMat()) * glm::vec4(cam.Up, 0);
-            target->rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+            bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
+                io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
+            if (!on_menue)
+            {
+                float angle = io.MouseDelta.x * glm::radians(0.1f); // 
+                glm::vec4 axis = glm::inverse(target->GetModelMat()) * glm::vec4(cam.Up, 0);
+                target->rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+            }
+
         }
     }
     if (io.MouseDown[1])
@@ -219,7 +230,7 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
     ImGui::SameLine();
     ImGui::Text("FPS: %f", ui_param->fps);
     //»»ÐÐ
-    ImVec4 clear_color;
+    //ImVec4 clear_color;
     ImGui::ColorEdit4("clear color", (float*)&ui_param->clear_color); // Edit 3 floats representing a color
    // std::cout << clear_color.x << " " << clear_color.y << " " << clear_color.z << " " << clear_color.w << std::endl;
 
@@ -233,6 +244,16 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
     ImGui::RadioButton("blinn phong", &ui_param->shader_type, 0); ImGui::SameLine();
     ImGui::RadioButton("BRDF", &ui_param->shader_type, 1); ImGui::SameLine();
     ImGui::RadioButton("ray tracing", &ui_param->shader_type, 2);
+
+    if (ui_param->shader_type == 1)
+    {
+        ImGui::SliderFloat("metallic", &ui_param->metallic, 0.0f, 1.0f);
+        ImGui::SliderFloat("roughness", &ui_param->roughness, 0.0f, 1.0f);
+        ImGui::ColorEdit4("albedo", (float*)&ui_param->albedo);
+    }
+
+
+
 
 
     ImGui::RadioButton("model control", &ui_param->control_type, 0); ImGui::SameLine();
