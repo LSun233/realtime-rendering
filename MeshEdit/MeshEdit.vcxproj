@@ -81,8 +81,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\MYapp\VS2019\project\MeshEdit\3PartyLib\eigen-3.4.0\eigen-3.4.0;C:\MYapp\VS2019\project\MeshEdit\3PartyLib\glm-1.0.1;C:\MYapp\VS2019\project\MeshEdit\3PartyLib\glad\include;C:\MYapp\VS2019\project\MeshEdit\3PartyLib\glfw\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\MYapp\VS2019\project\MeshEdit\3PartyLib\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\3PartyLib\eigen-3.4.0\eigen-3.4.0;..\3PartyLib\glm-1.0.1;..\3PartyLib\glad\include;..\3PartyLib\glfw\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\3PartyLib\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -154,11 +154,11 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="render\skybox\skybox.cpp" />
     <ClCompile Include="render\skybox\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mesh\MeshBase.h" />
+    <ClInclude Include="render\pipline\FrameBufferObject.h" />
     <ClInclude Include="render\skybox\skybox.h" />
     <ClInclude Include="render\skybox\stb_image.h" />
     <ClInclude Include="shader\BPShader.h" />

@@ -18,6 +18,7 @@
 #include"UI/UIParam.h"
 #include"render/skybox/skybox.h"
 #include"shader/BRDF.h";
+#include"render/pipline/FrameBufferObject.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // camera
@@ -56,11 +57,13 @@ GLFWwindow* creatGLFWwindow()
     glEnable(GL_DEPTH_TEST);
     return window;
 }
+
+
+
+
+
 int main()
 {
-    
-
-    
     vector<MeshBase*> meshList;
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
@@ -69,7 +72,7 @@ int main()
     string path = "../data/model/dragon.ply";
     Mesh*  pmesh =new  Mesh(path);
     pmesh->name = " bunny1";
-   // pmesh->OnCenter(camera.Position,camera.Front);
+    pmesh->OnCenter(camera.Position,camera.Front);
     meshList.push_back(pmesh);
     //meshList.push_back(&mesh);
 
@@ -85,6 +88,11 @@ int main()
     SkyBox skybox(faces);
     BRDF* shaderBRDF = new BRDF();
     BPShader* shaderBP = new BPShader();
+
+    FrameBufferObject fbo=FrameBufferObject();
+
+ 
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -111,7 +119,9 @@ int main()
         ui_param->fps = 1.0 / deltaTime;
         lastFrame = currentFrame;
 
-        // render scene
+        // render scene first pass 
+       
+        fbo.SetTargrt();
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
@@ -136,6 +146,8 @@ int main()
         glEnable(GL_MULTISAMPLE);
        skybox.Draw(&camera);
 
+     
+       fbo.ScreenRender();
 
         // render ui
         RenderMainImGui(meshList, camera);
@@ -145,7 +157,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
