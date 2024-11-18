@@ -18,6 +18,8 @@
 #include"UI/UIParam.h"
 #include"render/skybox/skybox.h"
 #include"shader/BRDF.h";
+#include"shader//BRDFSSAO.h"
+#include"render/GI/SSAO.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // camera
@@ -31,7 +33,8 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(2.0, 0.7, 1.3);
+glm::vec3 lightColor(300.0f, 300.0f, 300.0f);
 GLFWwindow* creatGLFWwindow()
 {
     glfwInit();
@@ -69,7 +72,7 @@ int main()
     string path = "../data/model/dragon.ply";
     Mesh*  pmesh =new  Mesh(path);
     pmesh->name = " bunny1";
-   // pmesh->OnCenter(camera.Position,camera.Front);
+    pmesh->OnCenter(camera.Position,camera.Front);
     meshList.push_back(pmesh);
     //meshList.push_back(&mesh);
 
@@ -85,7 +88,9 @@ int main()
     SkyBox skybox(faces);
     BRDF* shaderBRDF = new BRDF();
     BPShader* shaderBP = new BPShader();
+    BRDFSSAO* shaderBRDFSSA0=new BRDFSSAO();
 
+    SSAO ssao = SSAO(shaderBRDFSSA0);
     while (!glfwWindowShouldClose(window))
     {
         // render
@@ -102,7 +107,7 @@ int main()
             ui_param->filePath = "";
         }
 
-        ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
+       
         
         // per-frame time logic
         // --------------------
@@ -112,30 +117,51 @@ int main()
         lastFrame = currentFrame;
 
         // render scene
-        glEnable(GL_DEPTH_TEST);
+     
+     
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         for (int i = 0; i < meshList.size(); i++)
         {
             if (ui_param->shader_type ==1)
             {
+                if (ui_param->SSA0)
+                {
+                    shaderBRDFSSA0->metallic = ui_param->metallic;
+                    shaderBRDFSSA0->roughness = ui_param->roughness;
+                    shaderBRDFSSA0->albedo = glm::vec3(ui_param->albedo[0], ui_param->albedo[1], ui_param->albedo[2]);
+                    shaderBRDFSSA0->setMaterial();
+                    shaderBRDFSSA0->setLight(camera.GetViewMatrix(), lightPos, lightColor);
+                    ssao.render(meshList,camera);
+                }
+                else
+                {
+                    shaderBRDF->metallic = ui_param->metallic;
+                    shaderBRDF->roughness = ui_param->roughness;
+                    shaderBRDF->albedo = glm::vec3(ui_param->albedo[0], ui_param->albedo[1], ui_param->albedo[2]);
+                    shaderBRDF->setMaterial();
+                    shaderBRDF->setLight(camera.GetViewMatrix(), lightPos, lightColor);
+                    meshList[i]->shader = shaderBRDF;
+                    meshList[i]->Draw(camera);
+                }
                 
-                shaderBRDF->metallic = ui_param->metallic;
-                shaderBRDF->roughness = ui_param->roughness;
-                shaderBRDF->albedo =glm::vec3( ui_param->albedo[0], ui_param->albedo[1], ui_param->albedo[2]);
-                meshList[i]->shader = shaderBRDF;
-                shaderBRDF->setmatrix(meshList[i]->GetModelMat(),camera.Position);
-
             }
             else if(ui_param->shader_type ==0)
             {
+                shaderBP->setMaterial();
+                shaderBP->setLight(camera.GetViewMatrix(), lightPos, lightColor);
                 meshList[i]->shader = shaderBP;
+                meshList[i]->Draw(camera);
             }
-            meshList[i]->Draw(camera);
+           
         }
-        glEnable(GL_MULTISAMPLE);
-       skybox.Draw(&camera);
 
+        glEnable(GL_MULTISAMPLE);
+     
+        glEnable(GL_DEPTH_TEST);
+       
+        skybox.Draw(&camera);
 
         // render ui
         RenderMainImGui(meshList, camera);
@@ -162,6 +188,36 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 
 
+
+
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
 
 
 

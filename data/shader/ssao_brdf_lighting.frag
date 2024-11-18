@@ -1,20 +1,24 @@
 #version 330 core
 out vec4 FragColor;
-in vec3 FragPos;
-in vec3 NormalInview;
 
-// material parameters
-uniform vec3 albedo;
+ //material parameters
 uniform float metallic;
 uniform float roughness;
 
 
+ //SSAO input
+in vec2 TexCoords;
 
-// lights
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gAlbedo;
+uniform sampler2D ssao;
+
+ //lights
 uniform vec3 lightPositionsInView;
 uniform vec3 lightColors;
 const float PI = 3.14159265359;
-// ----------------------------------------------------------------------------
+ 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
@@ -27,8 +31,10 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     denom = PI * denom * denom;
 
     return nom / denom;
+
+
 }
-// ----------------------------------------------------------------------------
+ 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
@@ -36,10 +42,9 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 
     float nom   = NdotV;
     float denom = NdotV * (1.0 - k) + k;
-
     return nom / denom;
 }
-// ----------------------------------------------------------------------------
+
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
@@ -49,16 +54,24 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
     return ggx1 * ggx2;
 }
-// ----------------------------------------------------------------------------
+ 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
-// ----------------------------------------------------------------------------
+
 void main()
 {		
-    vec3 N = normalize(NormalInview);
+    vec3 FragPos = texture(gPosition, TexCoords).rgb;
+    vec3 Normal = texture(gNormal, TexCoords).rgb;
+    
+    vec3 albedo = texture(gAlbedo, TexCoords).rgb;
+    float AmbientOcclusion = texture(ssao, TexCoords).r;
+   
+    
+    vec3 N = normalize(Normal);
     vec3 V = normalize( - FragPos);
+
 
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
@@ -103,11 +116,12 @@ void main()
         // add to outgoing radiance Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
+
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
-    float ao=1.0;
-    vec3 ambient = vec3(0.3) * albedo * ao;
+
+     vec3 ambient = vec3(0.3) * albedo*AmbientOcclusion ;
 
     vec3 color = ambient + Lo;
 
@@ -117,4 +131,5 @@ void main()
     color = pow(color, vec3(1.0/2.2)); 
 
     FragColor = vec4(color, 1.0);
-}
+
+    }

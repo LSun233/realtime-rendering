@@ -54,8 +54,8 @@ public:
             shader = new SimpleShader;
         }
         
-        shader->activate();
-        shader->setVec3("viewPos", cam.Position);
+        shader->use();
+        shader->setVec3("camPos", cam.Position);
         shader->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
 
 

@@ -237,7 +237,15 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
    
     ImGui::SliderFloat("alpha", &ui_param->alpha, 0.0, 1.0f);
     //»»ÐÐ 
-    ImGui::Checkbox("hard_shadow", &ui_param->hard_shadow);
+    ImGui::Checkbox("shadow", &ui_param->hard_shadow);
+    ImGui::SameLine();
+    ImGui::Checkbox("SSAO", &ui_param->SSA0);
+    if (ui_param->SSA0)
+    {
+
+        ImGui::SliderFloat("radius", &ui_param->radius, 0.0f, 5.0f);
+        ImGui::SliderFloat("bias", &ui_param->bias, 0.0f, 2.0f);
+    }
     ImGui::SameLine();
     ImGui::Checkbox("pick", &ui_param->pick);
 

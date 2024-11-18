@@ -8,8 +8,7 @@ public:
     {
         shader_type = ShaderType::Simple;
     }
-    void activate() override {
-        use();
-       setVec4("color", 1.0, 1.0, 1.0, 1.0);
-    }
+
+
+
 };

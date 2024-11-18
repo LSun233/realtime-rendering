@@ -152,6 +152,15 @@
     <ClInclude Include="shader\BRDF.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="render\GI\SSAO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="render\GI\标头.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="shader\BRDFSSAO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader\blinn_phong.vert">

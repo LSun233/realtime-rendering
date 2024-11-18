@@ -44,6 +44,7 @@ public:
         }
         catch (std::ifstream::failure& e)
         {
+            std::cout << vertexPath << std::endl;
             std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
         }
         const char* vShaderCode = vertexCode.c_str();
@@ -74,16 +75,29 @@ public:
     // activate the shader
     // ------------------------------------------------------------------------
 
-    virtual void activate() {
-        use();
-    }
 
+
+    virtual void setMaterial()
+    {
+        setVec3("color", glm::vec3(1, 1, 1));
+    }
+    virtual glm::vec3 getMaterial()
+    {
+        return glm::vec3(1, 1, 1);
+    }
+    virtual void setLight(glm::mat4 view, glm::vec3 lightPos, glm::vec3 lightColor)
+    {
+        use();
+        setVec3("lightColors", lightColor);
+        setVec3("lightPositionsInView", glm::vec3(view * glm::vec4(lightPos, 1.0)));
+    }
     void setMVPmatrix(glm::mat4 model, glm::mat4 view,glm::mat4 projection)
     {
 
        setMat4("model", model);
        setMat4("projection", projection);
        setMat4("view", view);
+       
     }
     void use() const
     {

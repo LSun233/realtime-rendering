@@ -159,6 +159,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mesh\MeshBase.h" />
+    <ClInclude Include="render\GI\SSAO.h" />
+    <ClInclude Include="render\GI\标头.h" />
     <ClInclude Include="render\skybox\skybox.h" />
     <ClInclude Include="render\skybox\stb_image.h" />
     <ClInclude Include="shader\BPShader.h" />
@@ -186,6 +188,7 @@
     <ClInclude Include="mesh\primitive\line.h" />
     <ClInclude Include="mesh\primitive\trianglFace.h" />
     <ClInclude Include="shader\BRDF.h" />
+    <ClInclude Include="shader\BRDFSSAO.h" />
     <ClInclude Include="shader\shader_m.h" />
     <ClInclude Include="shader\SimpleShader.h" />
     <ClInclude Include="type_define.h" />

@@ -15,6 +15,8 @@ public:
             glm::vec3(0.5f, 0.5f, 0.5f),    //specular
             32.0f };                        //shininess
 
+
+
         light = {
             glm::vec3(2.0,0.7,1.3),                 //postion
             glm::vec3(2.0,0.7,1.3) * glm::vec3(0.1f),//ambient
@@ -25,18 +27,29 @@ public:
 
         shader_type = ShaderType::BlingPhong;
     }
-    void activate() override {
-        use();
-        setVec3("light.ambient", light.ambient);
-        setVec3("light.diffuse", light.diffuse);
-        setVec3("light.specular", light.specular);
-        setVec3("light.position", light.position);
 
+
+    virtual void setMaterial()override
+    {
+        use();
         setVec3("material.ambient", mat.ambient);
         setVec3("material.diffuse", mat.diffuse);
         setVec3("material.specular", mat.specular);
         setFloat("material.shininess", mat.shininess);
+    }
 
-      
+    virtual glm::vec3 getMaterial()override
+    {
+        return mat.ambient;
+    }
+
+    virtual void setLight(glm::mat4 view, glm::vec3 lightPos, glm::vec3 lightColor) override
+    {
+
+        use();
+        setVec3("light.ambient", light.ambient);
+        setVec3("light.diffuse", light.diffuse);
+        setVec3("light.specular", light.specular);
+        setVec3("light.position", lightPos);
     }
 };
