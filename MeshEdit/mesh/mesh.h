@@ -84,24 +84,7 @@ public:
         glActiveTexture(GL_TEXTURE0);
     }
 
-    void OnCenter(glm::vec3 CameraPos, glm::vec3 direction)
-    {
-        float fov = 60;
-        float AspectRatio = 16.0 / 9.0;
-        //竖直方向dis
-        float aabb_height = aabb.max.y - aabb.min.y;
-        float distance_y = 8 * aabb_height / glm::tan(glm::radians(fov));
 
-        //水平方向的dis
-        float aabb_width = aabb.max.x - aabb.min.x;
-        float distance_x = 8 * aabb_width / (glm::tan(glm::radians(fov)) * AspectRatio);
-
-        float distance = glm::min(distance_x, distance_y);
-        glm::vec3 center_target_postion = CameraPos + distance * glm::normalize(direction);
-        glm::vec3 center_in_world = Position + aabb.center;
-        glm::vec3 move = center_target_postion - center_in_world;
-        translate(move);
-    }
     ~Mesh()
     {
         delete bvh;

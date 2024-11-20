@@ -21,7 +21,6 @@ public:
     string name;
     int GL_TYPE;
     Shader* shader=nullptr;
-
     // render data 
     unsigned int VAO, VBO, EBO;
 
@@ -32,6 +31,8 @@ public:
     glm::vec3 Position;
     glm::qua<float> Rotation_qua;
 
+
+
     vector<Triangle*> hitRes;
     vector<int> suroundingFace;
 
@@ -41,9 +42,11 @@ public:
     HalfEdge::HalfEdgeMesh* halfEdge;
 
     // constructor
-    MeshBase()
+    MeshBase(glm::vec3 postion=glm::vec3(0,0,0))
     {
-        model = glm::mat4(1.0f);
+         model = glm::mat4(1.0f);
+         model=glm::translate(model, postion);
+      
     }
 
 
@@ -88,9 +91,7 @@ public:
         // vertex Positions
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
     }
-
 
      void rotation(glm::vec3 axis, float angle)
     {
@@ -98,7 +99,6 @@ public:
         glm::mat4 transM = glm::mat4(1.0f);
         transM = glm::rotate(transM, angle, axis);
         model = model * transM;
-
     }
      void translate(glm::vec3 trans)
     {
@@ -106,6 +106,10 @@ public:
         transM = glm::translate(transM, trans);
         model = transM * model;
     }
+     glm::vec3 GetPostion()
+     {
+         return glm::vec3(model[3][0], model[3][1], model[3][2]);
+     }
      glm::mat4 GetRotation()
     {
         return Rotation;
@@ -214,7 +218,6 @@ public:
 
    
 private:
-
 
 };
 #endif

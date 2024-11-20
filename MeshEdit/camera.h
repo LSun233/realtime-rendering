@@ -114,7 +114,7 @@ public:
             Zoom = 45.0f;
     }
 
-private:
+
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors()
     {
@@ -127,6 +127,28 @@ private:
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));
+    }
+
+    void OnCenter(AABB aabb)
+    {
+        glm::vec3 CameraPos;
+        glm::vec3 direction;
+        float fov = 60;
+        float AspectRatio = 16.0 / 9.0;
+        //竖直方向dis
+        float aabb_height = aabb.max.y - aabb.min.y;
+        float distance_y = 8 * aabb_height / glm::tan(glm::radians(fov));
+
+        //水平方向的dis
+        float aabb_width = aabb.max.x - aabb.min.x;
+        float distance_x = 8 * aabb_width / (glm::tan(glm::radians(fov)) * AspectRatio);
+
+        float distance = glm::min(distance_x, distance_y);
+        //计算相机的位置
+        Position = aabb.center + glm::vec3(0, 0, distance);
+        Front = aabb.center;
+
+        updateCameraVectors();
     }
 };
 #endif

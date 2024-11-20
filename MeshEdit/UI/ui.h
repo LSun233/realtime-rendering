@@ -161,6 +161,67 @@ void pick(vector<MeshBase*> meshList, Camera& cam)
         }
     }
 }
+
+void light_control(MeshBase* lightMesh, Camera& cam)
+{
+   
+    UIParam* ui_param = UIParam::getInstance();
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    ImVec2 Menue_size = ImVec2(screen_size.x / 5, screen_size.y / 3);
+    ImVec2 Menue_pos = ImVec2(screen_size.x - Menue_size.x, 0);
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.MouseDown[0])
+    {
+        if (io.MousePos.y > 0)
+        {
+            bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
+                io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
+            if (!on_menue)
+            {
+                float angle = io.MouseDelta.y * glm::radians(0.1f); // 
+                glm::vec4 axis = glm::inverse(lightMesh->GetModelMat()) * glm::vec4(cam.Right, 0);
+                lightMesh->rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+            }
+        }
+        if (io.MousePos.x > 0)
+        {
+            bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
+                io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
+            if (!on_menue)
+            {
+                float angle = io.MouseDelta.x * glm::radians(0.1f); // 
+                glm::vec4 axis = glm::inverse(lightMesh->GetModelMat()) * glm::vec4(cam.Up, 0);
+                lightMesh->rotation(glm::vec3(axis.x, axis.y, axis.z), angle);
+            }
+        }
+    }
+    if (io.MouseDown[1])
+    {
+        bool on_menue = io.MousePos.x > Menue_pos.x && io.MousePos.x <(Menue_pos.x + Menue_size.x) &&
+            io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
+        if (!on_menue)
+        {
+            glm::vec3 trans = 0.0001f * io.MouseDelta.x * cam.Right - 0.0001f * io.MouseDelta.y * cam.Up;
+            lightMesh->translate(trans);
+        }
+    }
+
+    float wheel = ImGui::GetIO().MouseWheel;
+    float distance_scale = 0.1f;
+    if (io.MouseWheel > 0)
+    {
+        //靠近相机
+        glm::vec3 trans = distance_scale * cam.Front;
+        lightMesh->translate(trans);
+    }
+    if (io.MouseWheel < 0)
+    {
+        //远离相机
+        glm::vec3 trans = -1 * distance_scale * cam.Front;
+        lightMesh->translate(trans);
+    }
+}
 void  camera_control(Camera& cam)
 {
     UIParam* ui_param = UIParam::getInstance();
@@ -183,21 +244,25 @@ void  camera_control(Camera& cam)
     }
 
 }
-void interaction(vector<MeshBase*> meshList, Camera& cam)
+void interaction(vector<MeshBase*> meshList, MeshBase* light, Camera& cam)
 {
     UIParam* ui_param = UIParam::getInstance();
     if (ui_param->control_type == 0)
     {
         model_control(meshList, cam);
     }
-    else
+    else if(ui_param->control_type ==1)
     {
         camera_control(cam);
+    }
+    else
+    {
+        light_control(light,cam);
     }
    
     pick(meshList, cam);
 }
-void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
+void RenderMainImGui(vector<MeshBase*> meshList, MeshBase* light,Camera& cam )
 {
     UIParam* ui_param = UIParam::getInstance();
     ImGui_ImplOpenGL3_NewFrame();
@@ -266,6 +331,7 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
 
     ImGui::RadioButton("model control", &ui_param->control_type, 0); ImGui::SameLine();
     ImGui::RadioButton("camera control", &ui_param->control_type, 1); ImGui::SameLine();
+    ImGui::RadioButton("light control", &ui_param->control_type, 2); ImGui::SameLine();
 
    
     if (ImGui::Button("Import model"))
@@ -299,7 +365,7 @@ void RenderMainImGui(vector<MeshBase*> meshList,Camera& cam )
 
 
     //UI交互
-    interaction(meshList, cam);
+    interaction(meshList, light, cam);
 
     ImGui::End();
     ImGui::Render();
