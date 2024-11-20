@@ -48,9 +48,6 @@
     <ClCompile Include="render\skybox\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="render\skybox\skybox.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\shader_m.h">
