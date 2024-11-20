@@ -15,6 +15,7 @@
 #include"mesh/primitive/trianglFace.h"
 #include"BVH.h"
 #include"mesh/primitive/CUBE.h"
+#include"mesh/primitive/plane.h"
 #include"UI/UIParam.h"
 #include"render/skybox/skybox.h"
 #include"shader/BRDF.h";
@@ -90,14 +91,15 @@ int main()
     BPShader* shaderBP = new BPShader();
     BRDFSSAO* shaderBRDFSSA0=new BRDFSSAO();
     SSAO ssao = SSAO(shaderBRDFSSA0);
-    SimpleShader* simpleshader = new SimpleShader();
+    SimpleShader* lightshader = new SimpleShader();
+    SimpleShader* floorshader = new SimpleShader();
     //³õÊ¼»¯¹âÕÕ
     // lighting
     //glm::vec3 lightPos(2.0, 0.7, 1.3);
     glm::vec3 lightColor(300.0f, 300.0f, 300.0f);
     CUBE lightcube = CUBE(glm::vec3(0.02, 0.02, 0.02), glm::vec3(0.1, 0.3, 0.0));
+    plane floor = plane(glm::vec3(10.0, 10.0, 10.0));
   
-
 
 
 
@@ -178,11 +180,16 @@ int main()
         glEnable(GL_DEPTH_TEST);
     
         skybox.Draw(&camera);
-        simpleshader->use();
-        simpleshader->setVec4("color",glm::vec4(1,1,1,1));
-        lightcube.shader = simpleshader;
-
+        lightshader->use();
+        lightshader->setVec4("color",glm::vec4(1,1,1,1));
+        lightcube.shader = lightshader;
         lightcube.Draw(camera);
+
+
+        floorshader->use();
+        floorshader->setVec4("color", glm::vec4(0.7, 0.7, 0.7, 1));
+        floor.shader = floorshader;
+        floor.Draw(camera);
         // render ui
         RenderMainImGui(meshList,&lightcube, camera);
 

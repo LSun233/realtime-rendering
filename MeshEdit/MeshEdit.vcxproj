@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="mesh\MeshBase.h" />
     <ClInclude Include="mesh\primitive\cube.h" />
+    <ClInclude Include="mesh\primitive\plane.h" />
     <ClInclude Include="render\GI\SSAO.h" />
     <ClInclude Include="render\GI\标头.h" />
     <ClInclude Include="render\skybox\skybox.h" />
