@@ -6,7 +6,7 @@
 class SSAO 
 {
 public:
-    SSAO(Shader* _pRenderShader)
+    SSAO()
     {
         shaderSSAO = new Shader("../data/shader/ssao.vert", "../data/shader/ssao.frag");
         shaderSSAOBlur = new Shader("../data/shader/ssao.vert", "../data/shader/ssao_blur.frag");
@@ -14,8 +14,7 @@ public:
         
         shaderframebuffer = new Shader("../data/shader/framebufferscreen.vert", "../data/shader/framebufferscreen.frag");
         
-        ShaderType shader_type = ShaderType::BRDF;
-        pRenderShader = _pRenderShader;
+
 
         CreatGFramebuffer();
 
@@ -48,19 +47,43 @@ public:
     
     }
 
-    void render(std::vector<MeshBase*>meshList, Camera& cam)
+    void render(std::vector<MeshBase*>meshList, Camera& cam, Shader* pRenderShader)
     {
         GeometryPass(meshList, cam);
-
         SSAOTexturePass(cam);
-
         blurSSAOTexturePass();
-
-        RenderPass( cam);
-    
+        renderLight(cam, pRenderShader);
     }
 
-    Shader* pRenderShader;
+
+    void renderLight(Camera& cam,Shader* pRenderShader)
+    {
+        pRenderShader->use();
+        pRenderShader->setInt("gPosition", 0);
+        pRenderShader->setInt("gNormal", 1);
+        pRenderShader->setInt("gAlbedo", 2);
+        pRenderShader->setInt("ssao", 3);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gPosition);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gNormal);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, gAlbedo);
+
+
+        glActiveTexture(GL_TEXTURE3); // add extra SSAO texture to lighting pass
+        glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        renderQuad();
+        glEnable(GL_DEPTH_TEST);
+    }
+
+
+
+
 
 
 
@@ -214,8 +237,6 @@ private:
     // SSAO four pass
     void GeometryPass(std::vector<MeshBase*>meshList, Camera& cam)
     {
-       
-        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -224,9 +245,13 @@ private:
         for (int i = 0; i < meshList.size(); i++)
         {
             shaderGeometryPass->use();
-            shaderGeometryPass->setVec3("albedo", pRenderShader->getMaterial());
+            Shader* pshader = meshList[i]->shader;
+            shaderGeometryPass->setVec3("albedo", pshader->getMaterial());
+            //先将mesh的材质设置为shaderGeometryPass
             meshList[i]->shader = shaderGeometryPass;
             meshList[i]->Draw(cam);
+            //渲染完后再将mesh的材质还原
+            meshList[i]->shader = pshader;
         }
 
         //将深度缓冲拷贝到默认帧缓冲中
@@ -234,8 +259,6 @@ private:
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, ISCR_WIDTH, ISCR_HEIGHT, 0, 0, ISCR_WIDTH, ISCR_HEIGHT,GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
     }
  
     void SSAOTexturePass(Camera& cam)
@@ -285,27 +308,6 @@ private:
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void RenderPass( Camera& cam)
-    {
-    
-        pRenderShader->use();
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, gPosition);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, gNormal);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, gAlbedo);
-
-        glActiveTexture(GL_TEXTURE3); // add extra SSAO texture to lighting pass
-        glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
-
-
-        glClear(GL_COLOR_BUFFER_BIT);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        renderQuad();
-        glEnable(GL_DEPTH_TEST);
-    }
 
     float lerp(float a, float b, float f)
     {
@@ -314,12 +316,6 @@ private:
 
     void ShaderConfiguration()
     {
-        pRenderShader->use();
-        pRenderShader->setInt("gPosition", 0);
-        pRenderShader->setInt("gNormal", 1);
-        pRenderShader->setInt("gAlbedo", 2);
-        pRenderShader->setInt("ssao", 3);
-
         shaderSSAO->use();
         shaderSSAO->setInt("gPosition", 0);
         shaderSSAO->setInt("gNormal", 1);

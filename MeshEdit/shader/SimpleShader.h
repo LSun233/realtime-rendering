@@ -8,7 +8,4 @@ public:
     {
         shader_type = ShaderType::Simple;
     }
-
-
-
 };

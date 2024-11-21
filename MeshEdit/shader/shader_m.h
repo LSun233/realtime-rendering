@@ -14,6 +14,9 @@ class Shader
 public:
     unsigned int ID;
     ShaderType shader_type;
+    glm::vec3 albedo;
+    float roughness = 0.5f;
+    float metallic = 0.5f;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
     Shader(const char* vertexPath, const char* fragmentPath)

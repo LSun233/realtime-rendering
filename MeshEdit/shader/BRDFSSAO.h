@@ -8,7 +8,7 @@ public:
 
     float roughness = 0.5f;
     float metallic = 0.5f;
-    glm::vec3 albedo = glm::vec3(0.5f, 0.0f, 0.0f);
+   
     BRDFSSAO(const char* vertexPath = "../data/shader/ssao.vert", const char* fragmentPath = "../data/shader/ssao_brdf_lighting.frag") :Shader(vertexPath, fragmentPath)
     {
         shader_type = ShaderType::BRDF;
@@ -20,10 +20,7 @@ public:
         setFloat("metallic", metallic);
         setFloat("roughness", roughness);
     }
-    virtual glm::vec3 getMaterial()override
-    {
-        return albedo;
-    }
+
 
     void setLight(glm::mat4 view, glm::vec3 lightPos, glm::vec3 lightColor)override
     {

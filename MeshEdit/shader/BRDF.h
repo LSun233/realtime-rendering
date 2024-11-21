@@ -6,15 +6,18 @@
 class BRDF : public Shader {
 public:
     
-    glm::vec3 albedo = glm::vec3(0.5f, 0.0f, 0.0f);
-    float roughness = 0.5f;
-    float metallic = 0.5f;
+
    
-    BRDF(const char* vertexPath = "../data/shader/BRDF.vert", const char* fragmentPath = "../data/shader/BRDF.frag") :Shader(vertexPath, fragmentPath)
+    BRDF(glm::vec3 color,const char* vertexPath = "../data/shader/BRDF.vert", const char* fragmentPath = "../data/shader/BRDF.frag") :Shader(vertexPath, fragmentPath)
     {
+        albedo = color;
         shader_type = ShaderType::BRDF;
     }
 
+    virtual glm::vec3 getMaterial()override
+    {
+        return albedo;
+    }
 
     virtual void setLight(glm::mat4 view, glm::vec3 lightPos, glm::vec3 lightColor)
     {

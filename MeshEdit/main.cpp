@@ -61,21 +61,31 @@ GLFWwindow* creatGLFWwindow()
 
 
 
-
-
 int main()
 {
     vector<MeshBase*> meshList;
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
     UIParam* ui_param = UIParam::getInstance();
+    
+    
     //读入模型数据
     string path = "../data/model/dragon.ply";
     Mesh*  pmesh =new  Mesh(path);
-    pmesh->name = " bunny1";
+    BRDF* shaderBRDF_dragon = new BRDF(glm::vec3(0.5, 0.0, 0.0));
+    pmesh->shader = shaderBRDF_dragon;
+    pmesh->name = " dragon";
     camera.OnCenter(pmesh->aabb);
     meshList.push_back(pmesh);
-    //meshList.push_back(&mesh);
+
+
+    plane* floor =new  plane(glm::vec3(10.0, 10.0, 10.0));
+    floor->name = "floor";
+    BRDF* shaderBRDF_floor = new BRDF(glm::vec3(0.7, 0.7, 0.7));
+    floor->shader = shaderBRDF_floor;
+    meshList.push_back(floor);
+
+
 
     std::vector<std::string> faces
     {
@@ -87,21 +97,17 @@ int main()
      "../data/skybox/sky/back.jpg"
     };
     SkyBox skybox(faces);
-    BRDF* shaderBRDF = new BRDF();
-    BPShader* shaderBP = new BPShader();
+    
+   
     BRDFSSAO* shaderBRDFSSA0=new BRDFSSAO();
-    SSAO ssao = SSAO(shaderBRDFSSA0);
+    SSAO ssao = SSAO();
     SimpleShader* lightshader = new SimpleShader();
-    SimpleShader* floorshader = new SimpleShader();
+ 
     //初始化光照
     // lighting
-    //glm::vec3 lightPos(2.0, 0.7, 1.3);
-    glm::vec3 lightColor(300.0f, 300.0f, 300.0f);
+
+    glm::vec3 lightColor(10.0f, 10.0f, 10.0f);
     CUBE lightcube = CUBE(glm::vec3(0.02, 0.02, 0.02), glm::vec3(0.1, 0.3, 0.0));
-    plane floor = plane(glm::vec3(10.0, 10.0, 10.0));
-  
-
-
 
     while (!glfwWindowShouldClose(window))
     {
@@ -119,8 +125,6 @@ int main()
             ui_param->filePath = "";
         }
 
-       
-        
         // per-frame time logic
         // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -129,50 +133,37 @@ int main()
         lastFrame = currentFrame;
 
         // render scene
-     
-     
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
        
-        
-        std::cout << lightcube.GetPostion().x << "   " << lightcube.GetPostion().y << "   " << lightcube.GetPostion().z << std::endl;
-
         //dram scene
-        for (int i = 0; i < meshList.size(); i++)
+
+        if (ui_param->SSA0)
         {
-            if (ui_param->shader_type ==1)
+            for (int i = 0; i < meshList.size(); i++)
             {
-                if (ui_param->SSA0)
-                {
-                    shaderBRDFSSA0->metallic = ui_param->metallic;
-                    shaderBRDFSSA0->roughness = ui_param->roughness;
-                    shaderBRDFSSA0->albedo = glm::vec3(ui_param->albedo[0], ui_param->albedo[1], ui_param->albedo[2]);
-                    shaderBRDFSSA0->setMaterial();
-                    shaderBRDFSSA0->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
-                    ssao.render(meshList,camera);
-                }
-                else
-                {
-                    shaderBRDF->metallic = ui_param->metallic;
-                    shaderBRDF->roughness = ui_param->roughness;
-                    shaderBRDF->albedo = glm::vec3(ui_param->albedo[0], ui_param->albedo[1], ui_param->albedo[2]);
-                    shaderBRDF->setMaterial();
-                    shaderBRDF->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
-                    meshList[i]->shader = shaderBRDF;
-                    meshList[i]->Draw(camera);
-                }
-                
-            }
-            else if(ui_param->shader_type ==0)
-            {
-                shaderBP->setMaterial();
-                shaderBP->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
-                meshList[i]->shader = shaderBP;
-                meshList[i]->Draw(camera);
+                shaderBRDFSSA0->metallic = ui_param->metallic;
+                shaderBRDFSSA0->roughness = ui_param->roughness;
+                shaderBRDFSSA0->use();
+                shaderBRDFSSA0->setMaterial();
+                shaderBRDFSSA0->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
+                ssao.render(meshList, camera, shaderBRDFSSA0);
             }
         }
-
+        else
+        {
+         
+                for (int i = 0; i < meshList.size(); i++)
+                {
+                    meshList[i]->shader->use();
+                    meshList[i]->shader->metallic = ui_param->metallic;
+                    meshList[i]->shader->roughness = ui_param->roughness;
+                    meshList[i]->shader->setMaterial();
+                    meshList[i]->shader->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
+                    meshList[i]->Draw(camera);
+                }
+        }
 
         //dram light
         glEnable(GL_MULTISAMPLE);
@@ -186,10 +177,7 @@ int main()
         lightcube.Draw(camera);
 
 
-        floorshader->use();
-        floorshader->setVec4("color", glm::vec4(0.7, 0.7, 0.7, 1));
-        floor.shader = floorshader;
-        floor.Draw(camera);
+
         // render ui
         RenderMainImGui(meshList,&lightcube, camera);
 
