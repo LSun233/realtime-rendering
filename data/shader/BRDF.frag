@@ -9,11 +9,111 @@ uniform float metallic;
 uniform float roughness;
 
 
-
 // lights
 uniform vec3 lightPositionsInView;
 uniform vec3 lightColors;
 const float PI = 3.14159265359;
+
+//shadow
+
+uniform samplerCube depthMap;
+uniform float far_plane;
+uniform float near_plane=0.01;
+uniform float light_size=0.02;
+uniform bool shadows;
+
+float blockRadiusCalculation(vec3 fragPos)
+{   float fragToLightdistance = length(fragPos - lightPositionsInView);
+    float Radius=light_size/fragToLightdistance*(fragToLightdistance-near_plane);
+    return 0.5*Radius;
+}
+
+float blockDepthCalculation(vec3 fragPos,float Radius )
+{
+     float bias = 0.01; 
+     float samples = 4.0;
+      vec3 fragToLight = fragPos - lightPositionsInView;
+           float closestDepth = texture(depthMap, fragToLight).r;
+     closestDepth *= far_plane;
+     float currentDepth = length(fragToLight);
+     int count=0;
+     float depth=0;
+     for(float x = -Radius; x < Radius; x += Radius / (samples * 0.5))
+     {
+         for(float y = -Radius; y < Radius; y += Radius / (samples * 0.5))
+         {
+             for(float z = -Radius; z < Radius; z += Radius / (samples * 0.5))
+             {
+                 float closestDepth = texture(depthMap, fragToLight + vec3(x, y, z)).r; // use lightdir to lookup cubemap
+                 closestDepth *= far_plane;   // Undo mapping [0;1]
+                 if(currentDepth - bias > closestDepth)
+                 {
+                    depth+=closestDepth;
+                    count++;
+                 }  
+             }
+         }
+     }
+     if(count>0)return depth/count;
+     else return 0;
+}
+
+
+float offsetCalculation(vec3 fragPos,float depth)
+{
+    
+    vec3 fragToLight = fragPos - lightPositionsInView;
+    float currentDepth = length(fragToLight);
+    float offset=light_size/depth*(currentDepth-depth+0.0001);
+    return 0.5*offset;
+}
+
+
+
+
+float ShadowCalculation(vec3 fragPos)
+{
+      // get vector between fragment position and light position
+    vec3 fragToLight = fragPos - lightPositionsInView;
+    // use the fragment to light vector to sample from the depth map    
+     float closestDepth = texture(depthMap, fragToLight).r;
+     closestDepth *= far_plane;
+     float currentDepth = length(fragToLight);
+
+
+     float blockRadius=blockRadiusCalculation(fragPos);
+     float blockDepth=blockDepthCalculation(fragPos,blockRadius);
+     if(blockDepth==0)
+     return 0;
+     float offset=offsetCalculation(fragPos,blockDepth);
+
+ 
+
+    // PCF
+     float shadow = 0.0;
+     float bias = 0.05; 
+     float samples = 7.0;
+   
+     for(float x = -offset; x < offset; x += offset / (samples * 0.5))
+     {
+         for(float y = -offset; y < offset; y += offset / (samples * 0.5))
+         {
+             for(float z = -offset; z < offset; z += offset / (samples * 0.5))
+             {
+                 float closestDepth = texture(depthMap, fragToLight + vec3(x, y, 0)).r; // use lightdir to lookup cubemap
+                 closestDepth *= far_plane;   // Undo mapping [0;1]
+                 if(currentDepth - bias > closestDepth)
+                     shadow += 1.0;
+             }
+         }
+     }
+     shadow /= (samples * samples * samples);   
+  
+    return shadow;
+}
+
+
+
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -59,7 +159,6 @@ void main()
 {		
     vec3 N = normalize(NormalInview);
     vec3 V = normalize( - FragPos);
-
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -107,9 +206,11 @@ void main()
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
     float ao=1.0;
-    vec3 ambient = vec3(0.3) * albedo * ao;
+    vec3 ambient = vec3(0.03) * albedo * ao;
 
-    vec3 color = ambient + Lo;
+    float shadow = shadows ? ShadowCalculation(FragPos) : 0.0;   
+   
+    vec3 color = ambient +(1-shadow)* Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

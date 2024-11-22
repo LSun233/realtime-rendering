@@ -302,7 +302,7 @@ void RenderMainImGui(vector<MeshBase*> meshList, MeshBase* light,Camera& cam )
    
     ImGui::SliderFloat("alpha", &ui_param->alpha, 0.0, 1.0f);
     //»»ÐÐ 
-    ImGui::Checkbox("shadow", &ui_param->hard_shadow);
+    ImGui::Checkbox("shadow", &ui_param->shadow);
     ImGui::SameLine();
     ImGui::Checkbox("SSAO", &ui_param->SSA0);
     if (ui_param->SSA0)
@@ -314,21 +314,9 @@ void RenderMainImGui(vector<MeshBase*> meshList, MeshBase* light,Camera& cam )
     ImGui::SameLine();
     ImGui::Checkbox("pick", &ui_param->pick);
 
-    ImGui::RadioButton("blinn phong", &ui_param->shader_type, 0); ImGui::SameLine();
-    ImGui::RadioButton("BRDF", &ui_param->shader_type, 1); ImGui::SameLine();
-    ImGui::RadioButton("ray tracing", &ui_param->shader_type, 2);
-
-    if (ui_param->shader_type == 1)
-    {
-        ImGui::SliderFloat("metallic", &ui_param->metallic, 0.0f, 1.0f);
-        ImGui::SliderFloat("roughness", &ui_param->roughness, 0.0f, 1.0f);
-        ImGui::ColorEdit4("albedo", (float*)&ui_param->albedo);
-    }
-
-
-
-
-
+    ImGui::SliderFloat("metallic", &ui_param->metallic, 0.0f, 1.0f);
+    ImGui::SliderFloat("roughness", &ui_param->roughness, 0.0f, 1.0f);
+       
     ImGui::RadioButton("model control", &ui_param->control_type, 0); ImGui::SameLine();
     ImGui::RadioButton("camera control", &ui_param->control_type, 1); ImGui::SameLine();
     ImGui::RadioButton("light control", &ui_param->control_type, 2); ImGui::SameLine();
@@ -366,7 +354,6 @@ void RenderMainImGui(vector<MeshBase*> meshList, MeshBase* light,Camera& cam )
 
     //UI½»»¥
     interaction(meshList, light, cam);
-
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

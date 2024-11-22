@@ -34,9 +34,9 @@ public:
     float clear_color[4]{ 0.45f, 0.55f, 0.60f, 1.00f };
     bool show_demo_window = false;             //imgui demo 窗口控制
     bool wire_mode = false;                    //线框模式
-    int  shader_type = 0;                       //shader类型
+  
     bool SSA0 = false;
-    bool hard_shadow = false;                 //shadowMaping
+    bool shadow = false;                 //shadowMaping
     bool shadow_debug = false;
     bool back_ground = true;                  //背景
     bool pick = false;                        //点选面片

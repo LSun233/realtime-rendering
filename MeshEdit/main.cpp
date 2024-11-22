@@ -20,6 +20,7 @@
 #include"render/skybox/skybox.h"
 #include"shader/BRDF.h";
 #include"shader//BRDFSSAO.h"
+#include"render/shadow/shadow.h"
 #include"render/GI/SSAO.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -81,7 +82,7 @@ int main()
 
     plane* floor =new  plane(glm::vec3(10.0, 10.0, 10.0));
     floor->name = "floor";
-    BRDF* shaderBRDF_floor = new BRDF(glm::vec3(0.7, 0.7, 0.7));
+    BRDF* shaderBRDF_floor = new BRDF(glm::vec3(1.0, 1.0, 1.0));
     floor->shader = shaderBRDF_floor;
     meshList.push_back(floor);
 
@@ -105,9 +106,12 @@ int main()
  
     //初始化光照
     // lighting
-
-    glm::vec3 lightColor(10.0f, 10.0f, 10.0f);
+  
+    glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
     CUBE lightcube = CUBE(glm::vec3(0.02, 0.02, 0.02), glm::vec3(0.1, 0.3, 0.0));
+
+    //阴影
+    Shadow  shadow= Shadow();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -136,9 +140,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+
+        if (ui_param->shadow)
+        {
+            shadow.render(meshList, camera, lightcube.GetPostion());
+        }
        
         //dram scene
-
         if (ui_param->SSA0)
         {
             for (int i = 0; i < meshList.size(); i++)
@@ -153,7 +161,6 @@ int main()
         }
         else
         {
-         
                 for (int i = 0; i < meshList.size(); i++)
                 {
                     meshList[i]->shader->use();
@@ -167,12 +174,16 @@ int main()
 
         //dram light
         glEnable(GL_MULTISAMPLE);
- 
         glEnable(GL_DEPTH_TEST);
-    
-        skybox.Draw(&camera);
+
+
+ 
+        //skybox.Draw(&camera);
+
+
         lightshader->use();
         lightshader->setVec4("color",glm::vec4(1,1,1,1));
+
         lightcube.shader = lightshader;
         lightcube.Draw(camera);
 

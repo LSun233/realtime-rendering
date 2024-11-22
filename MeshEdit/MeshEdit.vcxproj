@@ -162,6 +162,7 @@
     <ClInclude Include="mesh\primitive\plane.h" />
     <ClInclude Include="render\GI\SSAO.h" />
     <ClInclude Include="render\GI\标头.h" />
+    <ClInclude Include="render\shadow\shadow.h" />
     <ClInclude Include="render\skybox\skybox.h" />
     <ClInclude Include="render\skybox\stb_image.h" />
     <ClInclude Include="shader\BPShader.h" />

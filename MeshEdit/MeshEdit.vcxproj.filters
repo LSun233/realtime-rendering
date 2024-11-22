@@ -164,6 +164,9 @@
     <ClInclude Include="mesh\primitive\plane.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="render\shadow\shadow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader\blinn_phong.vert">
