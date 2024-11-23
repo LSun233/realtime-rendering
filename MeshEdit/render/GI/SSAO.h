@@ -59,22 +59,11 @@ public:
     void renderLight(Camera& cam,Shader* pRenderShader)
     {
         pRenderShader->use();
-        pRenderShader->setInt("gPosition", 0);
-        pRenderShader->setInt("gNormal", 1);
-        pRenderShader->setInt("gAlbedo", 2);
-        pRenderShader->setInt("ssao", 3);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, gPosition);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, gNormal);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, gAlbedo);
-
-
-        glActiveTexture(GL_TEXTURE3); // add extra SSAO texture to lighting pass
-        glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
-
+        pRenderShader->SetTexture2D("gPosition", gPosition);
+        pRenderShader->SetTexture2D("gNormal", gNormal);
+        pRenderShader->SetTexture2D("gAlbedo", gAlbedo);
+        pRenderShader->SetTexture2D("ssao", ssaoColorBufferBlur);
+   
         glClear(GL_COLOR_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         renderQuad();

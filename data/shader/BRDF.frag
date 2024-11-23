@@ -15,25 +15,28 @@ uniform vec3 lightColors;
 const float PI = 3.14159265359;
 
 //shadow
-
+uniform mat4 view;
 uniform samplerCube depthMap;
-uniform float far_plane;
-uniform float near_plane=0.01;
-uniform float light_size=0.02;
-uniform bool shadows;
+uniform float far_plane;             
+uniform float near_plane;
+uniform float light_size=0.005;
+uniform bool shadowsFlag;
 
 float blockRadiusCalculation(vec3 fragPos)
-{   float fragToLightdistance = length(fragPos - lightPositionsInView);
+{
+    vec3 lightpose=(inverse(view)*vec4(lightPositionsInView,1.0)).xyz;
+    float fragToLightdistance = length(fragPos -lightPositionsInView);
     float Radius=light_size/fragToLightdistance*(fragToLightdistance-near_plane);
-    return 0.5*Radius;
+    return Radius;
 }
 
 float blockDepthCalculation(vec3 fragPos,float Radius )
 {
+     vec3 lightpose=(inverse(view)*vec4(lightPositionsInView,1.0)).xyz;
      float bias = 0.01; 
-     float samples = 4.0;
-      vec3 fragToLight = fragPos - lightPositionsInView;
-           float closestDepth = texture(depthMap, fragToLight).r;
+     float samples = 6.0;
+     vec3 fragToLight = fragPos - lightpose;
+     float closestDepth = texture(depthMap, fragToLight).r;
      closestDepth *= far_plane;
      float currentDepth = length(fragToLight);
      int count=0;
@@ -62,10 +65,11 @@ float blockDepthCalculation(vec3 fragPos,float Radius )
 float offsetCalculation(vec3 fragPos,float depth)
 {
     
-    vec3 fragToLight = fragPos - lightPositionsInView;
+    vec3 lightpose=(inverse(view)*vec4(lightPositionsInView,1.0)).xyz;
+    vec3 fragToLight = fragPos - lightpose;
     float currentDepth = length(fragToLight);
     float offset=light_size/depth*(currentDepth-depth+0.0001);
-    return 0.5*offset;
+    return offset;
 }
 
 
@@ -73,8 +77,11 @@ float offsetCalculation(vec3 fragPos,float depth)
 
 float ShadowCalculation(vec3 fragPos)
 {
+      
+     vec3 lightpose=(inverse(view)*vec4(lightPositionsInView,1.0)).xyz;
+      fragPos=(inverse(view)*vec4(fragPos,1.0)).xyz;
       // get vector between fragment position and light position
-    vec3 fragToLight = fragPos - lightPositionsInView;
+    vec3 fragToLight = fragPos - lightpose;
     // use the fragment to light vector to sample from the depth map    
      float closestDepth = texture(depthMap, fragToLight).r;
      closestDepth *= far_plane;
@@ -91,8 +98,8 @@ float ShadowCalculation(vec3 fragPos)
 
     // PCF
      float shadow = 0.0;
-     float bias = 0.05; 
-     float samples = 7.0;
+     float bias = 0.01; 
+     float samples = 6.0;
    
      for(float x = -offset; x < offset; x += offset / (samples * 0.5))
      {
@@ -208,9 +215,10 @@ void main()
     float ao=1.0;
     vec3 ambient = vec3(0.03) * albedo * ao;
 
-    float shadow = shadows ? ShadowCalculation(FragPos) : 0.0;   
+    float shadow = shadowsFlag ? ShadowCalculation(FragPos) : 0.0;   
    
     vec3 color = ambient +(1-shadow)* Lo;
+
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

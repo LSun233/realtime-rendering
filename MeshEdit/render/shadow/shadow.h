@@ -21,7 +21,7 @@ public:
 private:
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     Shader* simpleDepthShader;
-    float near_plane = 0.01f;
+    float near_plane = 0.001f;
     float far_plane = 100.0f;
 };
 
@@ -84,13 +84,15 @@ Shadow::Shadow()
         //渲染完后再将mesh的shader还原
         meshList[i]->shader = pshader;
         meshList[i]->shader->use();
-        meshList[i]->shader->setBool("shadows",true);
+        UIParam* ui_param = UIParam::getInstance();
+        meshList[i]->shader->setMat4("view",cam.GetViewMatrix());
+        meshList[i]->shader->setBool("shadowsFlag", ui_param->shadow);
         meshList[i]->shader->setFloat("far_plane", far_plane);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+        meshList[i]->shader->setFloat("near_plane", near_plane);
+        meshList[i]->shader->SetTexture3D("depthMap",depthCubemap);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    glClear(GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, ISCR_WIDTH, ISCR_HEIGHT);
 }
 

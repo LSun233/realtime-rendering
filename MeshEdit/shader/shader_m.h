@@ -17,6 +17,7 @@ public:
     glm::vec3 albedo;
     float roughness = 0.5f;
     float metallic = 0.5f;
+    unsigned int textureID = 0;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
@@ -188,6 +189,23 @@ public:
     void setMat4(const std::string& name, const glm::mat4& mat) const
     {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void SetTexture2D(string sampler_name,unsigned int Tex)
+    {
+        use();
+        setInt(sampler_name, textureID);
+        glActiveTexture(GL_TEXTURE0+textureID);
+        glBindTexture(GL_TEXTURE_2D, Tex);
+        textureID = textureID + 1;
+    }
+    void SetTexture3D(string sampler_name, unsigned int Tex)
+    {
+        use();
+        setInt(sampler_name, textureID);
+        glActiveTexture(GL_TEXTURE0 + textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, Tex); 
+        textureID = textureID + 1;
     }
 
 private:

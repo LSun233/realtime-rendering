@@ -6,8 +6,6 @@
 class BRDF : public Shader {
 public:
     
-
-   
     BRDF(glm::vec3 color,const char* vertexPath = "../data/shader/BRDF.vert", const char* fragmentPath = "../data/shader/BRDF.frag") :Shader(vertexPath, fragmentPath)
     {
         albedo = color;

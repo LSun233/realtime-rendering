@@ -30,6 +30,7 @@ float lastX = ISCR_WIDTH / 2.0f;
 float lastY = ISCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
+
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -86,6 +87,12 @@ int main()
     floor->shader = shaderBRDF_floor;
     meshList.push_back(floor);
 
+    plane* wall = new  plane(glm::vec3(10.0, 10.0, 10.0));
+    floor->name = "wall";
+    BRDF* shaderBRDF_wall = new BRDF(glm::vec3(1.0, 1.0, 1.0));
+    wall->shader = shaderBRDF_wall;
+    meshList.push_back(wall);
+
 
 
     std::vector<std::string> faces
@@ -107,8 +114,8 @@ int main()
     //初始化光照
     // lighting
   
-    glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-    CUBE lightcube = CUBE(glm::vec3(0.02, 0.02, 0.02), glm::vec3(0.1, 0.3, 0.0));
+    glm::vec3 lightColor(1.0f, 1.0f, 0.9f);
+    CUBE lightcube = CUBE(glm::vec3(0.01, 0.01, 0.01), glm::vec3(0.1, 0.3, 0.0));
 
     //阴影
     Shadow  shadow= Shadow();
@@ -140,28 +147,36 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-
-        if (ui_param->shadow)
-        {
-            shadow.render(meshList, camera, lightcube.GetPostion());
-        }
        
         //dram scene
         if (ui_param->SSA0)
         {
-            for (int i = 0; i < meshList.size(); i++)
-            {
+       
                 shaderBRDFSSA0->metallic = ui_param->metallic;
                 shaderBRDFSSA0->roughness = ui_param->roughness;
                 shaderBRDFSSA0->use();
                 shaderBRDFSSA0->setMaterial();
                 shaderBRDFSSA0->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
+                vector<Shader*>MeshShader(meshList.size());
+                for (int i = 0; i < meshList.size(); i++)
+                {
+                    MeshShader[i] = meshList[i]->shader;
+                    meshList[i]->shader = shaderBRDFSSA0;
+                }
+                  
+                shadow.render(meshList, camera, lightcube.GetPostion());
+                for (int i = 0; i < meshList.size(); i++)
+                {
+                    meshList[i]->shader = MeshShader[i];
+                }
+
                 ssao.render(meshList, camera, shaderBRDFSSA0);
-            }
+            
         }
         else
         {
-                for (int i = 0; i < meshList.size(); i++)
+            shadow.render(meshList, camera, lightcube.GetPostion());
+            for (int i = 0; i < meshList.size(); i++)
                 {
                     meshList[i]->shader->use();
                     meshList[i]->shader->metallic = ui_param->metallic;
@@ -178,15 +193,14 @@ int main()
 
 
  
-        //skybox.Draw(&camera);
+        skybox.Draw(&camera);
 
 
         lightshader->use();
-        lightshader->setVec4("color",glm::vec4(1,1,1,1));
+        lightshader->setVec4("color", glm::vec4(lightColor,1.0));
 
         lightcube.shader = lightshader;
         lightcube.Draw(camera);
-
 
 
         // render ui
