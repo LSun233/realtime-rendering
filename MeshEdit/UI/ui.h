@@ -312,7 +312,7 @@ void RenderMainImGui(vector<MeshBase*> meshList, MeshBase* light,Camera& cam )
         ImGui::SliderFloat("bias", &ui_param->bias, 0.0f, 2.0f);
     }
     ImGui::SameLine();
-    ImGui::Checkbox("pick", &ui_param->pick);
+    ImGui::Checkbox("AR", &ui_param->ARmod);
 
     ImGui::SliderFloat("metallic", &ui_param->metallic, 0.0f, 1.0f);
     ImGui::SliderFloat("roughness", &ui_param->roughness, 0.0f, 1.0f);

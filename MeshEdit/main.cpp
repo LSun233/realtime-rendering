@@ -22,6 +22,8 @@
 #include"shader//BRDFSSAO.h"
 #include"render/shadow/shadow.h"
 #include"render/GI/SSAO.h"
+#include"render/pipline/AR.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // camera
@@ -85,13 +87,13 @@ int main()
     floor->name = "floor";
     BRDF* shaderBRDF_floor = new BRDF(glm::vec3(1.0, 1.0, 1.0));
     floor->shader = shaderBRDF_floor;
-    meshList.push_back(floor);
+    //meshList.push_back(floor);
 
     plane* wall = new  plane(glm::vec3(10.0, 10.0, 10.0));
     floor->name = "wall";
     BRDF* shaderBRDF_wall = new BRDF(glm::vec3(1.0, 1.0, 1.0));
     wall->shader = shaderBRDF_wall;
-    meshList.push_back(wall);
+    //meshList.push_back(wall);
 
 
 
@@ -120,6 +122,13 @@ int main()
     //ÒõÓ°
     Shadow  shadow= Shadow();
 
+ 
+    //ARÄ£Ê½
+    AR ar = AR();
+    ar.InitCam();
+
+
+
     while (!glfwWindowShouldClose(window))
     {
         // render
@@ -143,12 +152,19 @@ int main()
         ui_param->fps = 1.0 / deltaTime;
         lastFrame = currentFrame;
 
+
+    
+
         // render scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
        
-        //dram scene
+        
+        if(ui_param->ARmod)
+        ar.draw();
+ 
+        //draw scene
         if (ui_param->SSA0)
         {
        
@@ -187,13 +203,13 @@ int main()
                 }
         }
 
-        //dram light
+        //draw light
         glEnable(GL_MULTISAMPLE);
         glEnable(GL_DEPTH_TEST);
 
 
- 
-        skybox.Draw(&camera);
+
+       // skybox.Draw(&camera);
 
 
         lightshader->use();

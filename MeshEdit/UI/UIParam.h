@@ -37,6 +37,7 @@ public:
   
     bool SSA0 = false;
     bool shadow = false;                 //shadowMaping
+    bool ARmod = false;                 // AR
     bool shadow_debug = false;
     bool back_ground = true;                  //±≥æ∞
     bool pick = false;                        //µ„—°√Ê∆¨

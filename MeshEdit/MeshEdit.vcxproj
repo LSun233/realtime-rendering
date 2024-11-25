@@ -81,8 +81,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\3PartyLib\eigen-3.4.0\eigen-3.4.0;..\3PartyLib\glm-1.0.1;..\3PartyLib\glad\include;..\3PartyLib\glfw\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\3PartyLib\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\3PartyLib\opencv\build\include;..\3PartyLib\eigen-3.4.0\eigen-3.4.0;..\3PartyLib\glm-1.0.1;..\3PartyLib\glad\include;..\3PartyLib\glfw\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\3PartyLib\opencv\build\x64\vc16\lib;..\3PartyLib\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -140,7 +140,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;opencv_world4100.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -158,10 +158,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mesh\MeshBase.h" />
+    <ClInclude Include="mesh\primitive\TexPlane.h" />
     <ClInclude Include="mesh\primitive\cube.h" />
     <ClInclude Include="mesh\primitive\plane.h" />
     <ClInclude Include="render\GI\SSAO.h" />
     <ClInclude Include="render\GI\标头.h" />
+    <ClInclude Include="render\pipline\AR.h" />
     <ClInclude Include="render\shadow\shadow.h" />
     <ClInclude Include="render\skybox\skybox.h" />
     <ClInclude Include="render\skybox\stb_image.h" />

@@ -74,9 +74,6 @@ public:
 
 
 
-
-
-
 private:
     void CreatQuad()
     {
