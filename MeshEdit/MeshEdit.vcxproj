@@ -157,6 +157,9 @@
     <ClCompile Include="render\skybox\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation\animation.h" />
+    <ClInclude Include="Animation\animator.h" />
+    <ClInclude Include="Animation\Bone.h" />
     <ClInclude Include="mesh\MeshBase.h" />
     <ClInclude Include="mesh\primitive\TexPlane.h" />
     <ClInclude Include="mesh\primitive\cube.h" />

@@ -152,22 +152,17 @@ int main()
         ui_param->fps = 1.0 / deltaTime;
         lastFrame = currentFrame;
 
-
-    
-
         // render scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
        
-        
         if(ui_param->ARmod)
         ar.draw();
  
         //draw scene
         if (ui_param->SSA0)
         {
-       
                 shaderBRDFSSA0->metallic = ui_param->metallic;
                 shaderBRDFSSA0->roughness = ui_param->roughness;
                 shaderBRDFSSA0->use();
@@ -179,15 +174,12 @@ int main()
                     MeshShader[i] = meshList[i]->shader;
                     meshList[i]->shader = shaderBRDFSSA0;
                 }
-                  
                 shadow.render(meshList, camera, lightcube.GetPostion());
                 for (int i = 0; i < meshList.size(); i++)
                 {
                     meshList[i]->shader = MeshShader[i];
                 }
-
                 ssao.render(meshList, camera, shaderBRDFSSA0);
-            
         }
         else
         {
