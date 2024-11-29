@@ -155,6 +155,10 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="render\skybox\stb_image.cpp" />
+    <ClCompile Include="Utilis\tinyXML\tinystr.cpp" />
+    <ClCompile Include="Utilis\tinyXML\tinyxml.cpp" />
+    <ClCompile Include="Utilis\tinyXML\tinyxmlerror.cpp" />
+    <ClCompile Include="Utilis\tinyXML\tinyxmlparser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation\animation.h" />
@@ -201,6 +205,8 @@
     <ClInclude Include="type_define.h" />
     <ClInclude Include="UI\ui.h" />
     <ClInclude Include="UI\UIParam.h" />
+    <ClInclude Include="Utilis\tinyXML\tinystr.h" />
+    <ClInclude Include="Utilis\tinyXML\tinyxml.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader\blinn_phong.frag" />

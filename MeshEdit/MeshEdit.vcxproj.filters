@@ -48,6 +48,18 @@
     <ClCompile Include="render\skybox\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Utilis\tinyXML\tinystr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilis\tinyXML\tinyxml.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilis\tinyXML\tinyxmlerror.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilis\tinyXML\tinyxmlparser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\shader_m.h">
@@ -180,6 +192,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Animation\animator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilis\tinyXML\tinystr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilis\tinyXML\tinyxml.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,9 +11,6 @@
 #include"mesh/mesh.h"
 #include"type_define.h"
 #include"UI/ui.h"
-#include"mesh/primitive/AABB.h"
-#include"mesh/primitive/trianglFace.h"
-#include"BVH.h"
 #include"mesh/primitive/CUBE.h"
 #include"mesh/primitive/plane.h"
 #include"UI/UIParam.h"
@@ -23,6 +20,8 @@
 #include"render/shadow/shadow.h"
 #include"render/GI/SSAO.h"
 #include"render/pipline/AR.h"
+#include"Utilis/tinyXML/tinyxml.h"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -36,6 +35,18 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+
+/// <summary>
+
+/// </summary>
+void XMLtest()
+{
+    TiXmlDocument* tinyXmlDoc = new TiXmlDocument();
+
+
+
+}
 
 
 GLFWwindow* creatGLFWwindow()
@@ -240,6 +251,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
+
 void renderQuad()
 {
     if (quadVAO == 0)
