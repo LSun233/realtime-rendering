@@ -19,7 +19,6 @@
 #include"shader//BRDFSSAO.h"
 #include"render/shadow/shadow.h"
 #include"render/GI/SSAO.h"
-#include"render/pipline/AR.h"
 #include"Utilis/tinyXML/tinyxml.h"
 
 
@@ -36,15 +35,138 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+// 帮助函数：分割字符串并返回浮点数向量 
+std::vector<float> parseFloats(const std::string& text) {
+    std::vector<float> values; std::istringstream iss(text); 
+    float value;
+    while (iss >> value) { 
+        values.push_back(value);
+    } 
+    return values; }
 
+// 帮助函数：分割字符串并返回整数向量 
+std::vector<int> parseInts(const std::string& text) {
+    std::vector<int> values; std::istringstream iss(text); 
+    int value; while (iss >> value) { 
+        values.push_back(value); 
+    }
+    return values; 
+}
 /// <summary>
 
 /// </summary>
-void XMLtest()
+void XMLtest(string xmlpath)
 {
-    TiXmlDocument* tinyXmlDoc = new TiXmlDocument();
+    TiXmlDocument doc(xmlpath.data());
+    bool loadOkay = doc.LoadFile();
+    if (!loadOkay)
+    {
+        std::cout << "加载xml文件失败" << std::endl;
+    }
+    else
+    {
+        std::cout << "加载xml文件成功" << std::endl;
+    }
+    if (!doc.LoadFile()) { 
+        std::cerr << "Failed to load file 'example.dae'" << std::endl; 
+        return ; 
+    } 
+    TiXmlElement* root = doc.RootElement(); 
+    if (root == nullptr) {
+        std::cerr << "Failed to get root element" << std::endl; return ;
+    }
+
+    // 找到geometry元素
+    TiXmlElement* geometry = root->FirstChildElement("library_geometries")->FirstChildElement("geometry"); 
+    if (geometry == nullptr) { 
+        std::cerr << "Failed to find geometry element" << std::endl; 
+        return ;
+    } 
+
+    // 找到mesh元素并解析顶点数据 
+    std::vector<Vertex> vertices;
+    TiXmlElement* mesh = geometry->FirstChildElement("mesh");
+
+    // 获取所有source元素 
+    std::vector<TiXmlElement*> sources; 
+    for (TiXmlElement* source = mesh->FirstChildElement("source"); source != nullptr; source = source->NextSiblingElement("source")) { 
+        sources.push_back(source);
+    }
 
 
+    // 解析Position数据 
+    std::vector<float> positionValues = parseFloats(sources[0]->FirstChildElement("float_array")->GetText());
+    for (size_t i = 0; i < positionValues.size(); i += 3) { 
+        Vertex vertex;
+        vertex.Position = glm::vec3(positionValues[i], positionValues[i + 1], positionValues[i + 2]);
+        vertices.push_back(vertex); 
+    } 
+    // 解析Normal数据 
+    std::vector<float> normalValues = parseFloats(sources[1]->FirstChildElement("float_array")->GetText()); 
+    // 解析TexCoords数据
+     std::vector<float> texCoordValues = parseFloats(sources[2]->FirstChildElement("float_array")->GetText());
+     // 解析polylist元素并匹配顶点、法线和纹理坐标
+      TiXmlElement* polylist = mesh->FirstChildElement("polylist");
+      TiXmlElement* p = polylist->FirstChildElement("p"); 
+      std::vector<int> indices = parseInts(p->GetText()); 
+      // 存储面片的顶点索引到vector<int>中
+      std::vector<int> vertexIndices;
+
+
+      // 获取每个面有多少个顶点 
+      TiXmlElement* vcount = polylist->FirstChildElement("vcount"); 
+      std::vector<int> vcounts = parseInts(vcount->GetText()); 
+      size_t index = 0; for (size_t i = 0; i < vcounts.size(); ++i) { 
+          for (int j = 0; j < vcounts[i]; ++j) { 
+              int vertexIndex = indices[index * 3]; 
+              int texCoordIndex = indices[index * 3 + 2]; 
+              // 索引数组的结构通常是 顶点索引/纹理坐标索引/法线索引 
+              int normalIndex = indices[index * 3 + 1]; 
+              vertices[vertexIndex].TexCoords = glm::vec2(texCoordValues[texCoordIndex * 2], texCoordValues[texCoordIndex * 2 + 1]); 
+              vertices[vertexIndex].Normal = glm::vec3(normalValues[normalIndex * 3], normalValues[normalIndex * 3 + 1], normalValues[normalIndex * 3 + 2]); ++index; 
+              vertexIndices.push_back(vertexIndex);
+          } 
+      }
+    // 解析骨骼权重数据
+    // 解析library_controllers中的骨骼权重数据 
+    TiXmlElement* controller = root->FirstChildElement("library_controllers")->FirstChildElement("controller"); 
+    TiXmlElement* skin = controller->FirstChildElement("skin");
+    TiXmlElement* vertexWeights = skin->FirstChildElement("vertex_weights");
+    TiXmlElement* vcountElement = vertexWeights->FirstChildElement("vcount"); 
+    TiXmlElement* vElement = vertexWeights->FirstChildElement("v"); 
+    
+    std::vector<int> vCounts = parseInts(vcountElement->GetText()); 
+    std::vector<int> vValues = parseInts(vElement->GetText()); 
+    // 解析权重数组 
+    TiXmlElement* weightsSource = skin->FirstChildElement("source")->NextSiblingElement("source")->NextSiblingElement("source");
+    std::vector<float> weights = parseFloats(weightsSource->FirstChildElement("float_array")->GetText()); 
+    // 填充骨骼ID和权重 
+    size_t vIndex = 0; for (size_t i = 0; i < vertices.size(); ++i) { 
+        int influenceCount = vCounts[i];
+        for (int j = 0; j < influenceCount; ++j) {
+            int jointId = vValues[vIndex++]; 
+            int weightIndex = vValues[vIndex++];
+            if (j < MAX_BONE_INFLUENCE) {
+                vertices[i].m_BoneIDs[j] = jointId;
+                vertices[i].m_Weights[j] = weights[weightIndex]; 
+            } 
+        } 
+    }
+    
+    //// 解析其他数据（Color, TexCoords等）的方法类似 // ... // 输出解析后的顶点数据 
+    //for (const auto& vertex : vertices) 
+    //{ 
+    //    std::cout << "Position: " << vertex.Position.x << " " << vertex.Position.y << " " << vertex.Position.z << std::endl;
+    //    std::cout << "Normal: " << vertex.Normal.x << " " << vertex.Normal.y << " " << vertex.Normal.z << std::endl;
+    //    std::cout << "BoneID: " << vertex.m_BoneIDs[0] << "  " << vertex.m_BoneIDs[1] << "  " << vertex.m_BoneIDs[2] << "  " << vertex.m_BoneIDs[3] << "  " << std::endl;
+    //    std::cout<<"BoneWeight: "<< vertex.m_Weights[0] << "  " << vertex.m_Weights[1] << "  " << vertex.m_Weights[2] << "  " << vertex.m_Weights[3] << "  " << std::endl;
+    //}
+
+
+
+
+   
+    
 
 }
 
@@ -78,6 +200,8 @@ GLFWwindow* creatGLFWwindow()
 
 int main()
 {
+    string xmlpath = "../data/model/Walking.dae";
+    XMLtest(xmlpath);
     vector<MeshBase*> meshList;
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
@@ -98,7 +222,7 @@ int main()
     floor->name = "floor";
     BRDF* shaderBRDF_floor = new BRDF(glm::vec3(1.0, 1.0, 1.0));
     floor->shader = shaderBRDF_floor;
-    //meshList.push_back(floor);
+    meshList.push_back(floor);
 
     plane* wall = new  plane(glm::vec3(10.0, 10.0, 10.0));
     floor->name = "wall";
@@ -134,9 +258,6 @@ int main()
     Shadow  shadow= Shadow();
 
  
-    //AR模式
-    AR ar = AR();
-    ar.InitCam();
 
 
 
@@ -168,8 +289,8 @@ int main()
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
        
-        if(ui_param->ARmod)
-        ar.draw();
+
+
  
         //draw scene
         if (ui_param->SSA0)
@@ -212,7 +333,7 @@ int main()
 
 
 
-       // skybox.Draw(&camera);
+        skybox.Draw(&camera);
 
 
         lightshader->use();
