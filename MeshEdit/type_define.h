@@ -6,6 +6,23 @@ using namespace std;
 #define MAX_BONE_INFLUENCE 4
 #define INF 9999999.0
 
+struct BoneInfo
+{
+    /*id is index in finalBoneMatrices*/
+    int id;
+
+    /*offset matrix transforms vertex from model space to bone space*/
+    glm::mat4 offset;
+
+};
+struct NodeData
+{
+    glm::mat4 transformation;
+    std::string name;
+    int childrenCount;
+    std::vector<NodeData> children;
+};
+
 struct Vertex {
     // position
     glm::vec3 Position;

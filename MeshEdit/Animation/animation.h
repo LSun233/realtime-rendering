@@ -3,21 +3,16 @@
 #include <map>
 #include <glm/glm.hpp>
 #include"Bone.h"
-struct NodeData
-{
-    glm::mat4 transformation;
-    std::string name;
-    int childrenCount;
-    std::vector<NodeData> children;
-};
+
 
 class Animation
 {
 public:
     Animation() = default;
 
-    Animation()
+    Animation(NodeData rootNode)
     {
+        m_RootNode = rootNode;
        
     }
 
