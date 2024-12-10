@@ -15,11 +15,29 @@ struct BoneInfo
     glm::mat4 offset;
 
 };
+
+struct KeyPosition
+{
+    glm::vec3 position;
+    float timeStamp;
+};
+
+struct KeyRotation
+{
+    glm::quat orientation;
+    float timeStamp;
+};
+
+struct KeyScale
+{
+    glm::vec3 scale;
+    float timeStamp;
+};
 struct NodeData
 {
     glm::mat4 transformation;
     std::string name;
-    int childrenCount;
+    int childrenCount=0;
     std::vector<NodeData> children;
 };
 
@@ -101,10 +119,6 @@ struct HitResult {
     float distance = INF;
     int index = -1;
 };
-
-
-
-
 
 
  unsigned int ISCR_WIDTH = 2560;

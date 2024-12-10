@@ -10,9 +10,11 @@ class Animation
 public:
     Animation() = default;
 
-    Animation(NodeData rootNode)
+    Animation(NodeData rootNode, std::vector<Bone>Bones, std::map<std::string, BoneInfo> BoneInfoMap)
     {
         m_RootNode = rootNode;
+        m_Bones = Bones;
+        m_BoneInfoMap = BoneInfoMap;
        
     }
 
@@ -46,8 +48,8 @@ public:
 
 private:
 
-    float m_Duration;
-    int m_TicksPerSecond;
+    float m_Duration=1;
+    float m_TicksPerSecond=0.5;
     std::vector<Bone> m_Bones;
     NodeData m_RootNode;
     std::map<std::string, BoneInfo> m_BoneInfoMap;

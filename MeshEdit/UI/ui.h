@@ -72,7 +72,7 @@ void model_control(vector<MeshBase*> meshList, Camera& cam)
             io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
         if (!on_menue)
         {
-            glm::vec3 trans = 0.0001f * io.MouseDelta.x * cam.Right - 0.0001f * io.MouseDelta.y * cam.Up;
+            glm::vec3 trans = 0.1f * io.MouseDelta.x * cam.Right - 0.1f * io.MouseDelta.y * cam.Up;
             target->translate(trans);
         }
     }

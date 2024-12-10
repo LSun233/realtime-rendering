@@ -19,8 +19,10 @@
 #include"shader//BRDFSSAO.h"
 #include"render/shadow/shadow.h"
 #include"render/GI/SSAO.h"
-
-
+#include"Animation/Bone.h"
+#include"Animation/animation.h"
+#include"Animation/animator.h"
+#include"FileIO/daeRead.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -71,22 +73,59 @@ GLFWwindow* creatGLFWwindow()
 
 int main()
 {
-    string xmlpath = "../data/model/Walking.dae";
 
-    vector<MeshBase*> meshList;
     GLFWwindow* window = creatGLFWwindow();
     init_imgui(window);
     UIParam* ui_param = UIParam::getInstance();
+
+
+    string xmlpath = "../data/model/Walking.dae";
+
+    //std::vector<Vertex> vertices;
+    //std::vector<unsigned int> vertexIndices;
+
+    vector<Mesh*> meshes;
+    vector<Animation*>animations;
+
+    daeRead(xmlpath, meshes, animations);
+
+
+
+
+
+
+    Animator animator1(animations[0]);
+    Animator animator2(animations[1]);
+
+
+    vector<MeshBase*> meshList;
+
     
     
     //读入模型数据
-    string path = "../data/model/dragon.ply";
-    Mesh*  pmesh =new  Mesh(path);
+
+    Mesh* pmesh1 = meshes[0];
+    Mesh* pmesh2 = meshes[1];
+
+
+
+
+    //Mesh*  pmesh =new  Mesh(path);
     BRDF* shaderBRDF_dragon = new BRDF(glm::vec3(0.5, 0.0, 0.0));
-    pmesh->shader = shaderBRDF_dragon;
-    pmesh->name = " dragon";
-    camera.OnCenter(pmesh->aabb);
-    meshList.push_back(pmesh);
+    pmesh1->shader = shaderBRDF_dragon;
+    pmesh1->name = " dragon";
+    camera.OnCenter(pmesh1->aabb);
+    meshList.push_back(pmesh1);
+
+    BRDF* shaderBRDF_dragon1 = new BRDF(glm::vec3(0.5, 0.2, 0.3));
+    pmesh2->shader = shaderBRDF_dragon1;
+    pmesh2->name = " dragon";
+    camera.OnCenter(pmesh2->aabb);
+    meshList.push_back(pmesh2);
+
+
+
+
 
 
     plane* floor =new  plane(glm::vec3(10.0, 10.0, 10.0));
@@ -100,7 +139,6 @@ int main()
     BRDF* shaderBRDF_wall = new BRDF(glm::vec3(1.0, 1.0, 1.0));
     wall->shader = shaderBRDF_wall;
     //meshList.push_back(wall);
-
 
 
     std::vector<std::string> faces
@@ -155,6 +193,9 @@ int main()
         ui_param->fps = 1.0 / deltaTime;
         lastFrame = currentFrame;
 
+        animator1.UpdateAnimation(deltaTime);
+        animator2.UpdateAnimation(deltaTime);
+
         // render scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
@@ -188,24 +229,39 @@ int main()
         {
             shadow.render(meshList, camera, lightcube.GetPostion());
             for (int i = 0; i < meshList.size(); i++)
-                {
+            {
                     meshList[i]->shader->use();
                     meshList[i]->shader->metallic = ui_param->metallic;
                     meshList[i]->shader->roughness = ui_param->roughness;
                     meshList[i]->shader->setMaterial();
                     meshList[i]->shader->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
                     meshList[i]->Draw(camera);
-                }
+            }
+
+            //传入骨骼变换矩阵
+            auto transforms1 = animator1.GetFinalBoneMatrices();
+            meshList[0]->shader->use();
+            for (int i = 0; i < transforms1.size(); ++i)
+            {
+                    meshList[0]->shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms1[i]);
+            
+            }
+
+            auto transforms2 = animator2.GetFinalBoneMatrices();
+            meshList[1]->shader->use();
+            for (int i = 0; i < transforms2.size(); ++i)
+            {
+                meshList[1]->shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms2[i]);
+
+            }
+
         }
 
         //draw light
         glEnable(GL_MULTISAMPLE);
         glEnable(GL_DEPTH_TEST);
 
-
-
         skybox.Draw(&camera);
-
 
         lightshader->use();
         lightshader->setVec4("color", glm::vec4(lightColor,1.0));

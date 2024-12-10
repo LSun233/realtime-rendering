@@ -1,48 +1,24 @@
 #pragma once
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glad/glad.h> // holds all OpenGL type declarations
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp> // 包含 toMat4 函数
+#include <glm/gtc/quaternion.hpp> // 包含 toMat4 函数
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp> 
+#include <glm/gtc/matrix_transform.hpp>
+
+
 #include "../shader/shader_m.h"
 #include <string>
 #include <vector>
 #include"../camera.h"
 #include"../type_define.h"
 
-struct BoneInfo
-{
-    /*id is index in finalBoneMatrices*/
-    int id;
-
-    /*offset matrix transforms vertex from model space to bone space*/
-    glm::mat4 offset;
-
-};
-
-struct KeyPosition
-{
-    glm::vec3 position;
-    float timeStamp;
-};
-
-struct KeyRotation
-{
-    glm::quat orientation;
-    float timeStamp;
-};
-
-struct KeyScale
-{
-    glm::vec3 scale;
-    float timeStamp;
-};
-
 class Bone
 {
-private:
-    std::vector<KeyPosition> m_Positions;
-    std::vector<KeyRotation> m_Rotations;
-    std::vector<KeyScale> m_Scales;
+public:
     int m_NumPositions;
     int m_NumRotations;
     int m_NumScalings;
@@ -53,10 +29,15 @@ private:
 
 public:
 
+    std::vector<KeyPosition> m_Positions;
+    std::vector<KeyRotation> m_Rotations;
+    std::vector<KeyScale> m_Scales;
+
     /*reads keyframes from aiNodeAnim*/
-    Bone()
+    Bone(string name,int id)
     {
-        
+        m_Name = name;
+        m_ID = id;
 
     }
 
@@ -68,12 +49,19 @@ public:
         glm::mat4 translation = InterpolatePosition(animationTime);
         glm::mat4 rotation = InterpolateRotation(animationTime);
         glm::mat4 scale = InterpolateScaling(animationTime);
-        m_LocalTransform = translation * rotation * scale;
+        m_LocalTransform = translation * glm::transpose(rotation) *glm::transpose(scale);
+
     }
 
-    glm::mat4 GetLocalTransform() { return m_LocalTransform; }
-    std::string GetBoneName() const { return m_Name; }
-    int GetBoneID() { return m_ID; }
+    glm::mat4 GetLocalTransform() {
+        return m_LocalTransform; 
+    }
+    std::string GetBoneName() const {
+        return m_Name;
+    }
+    int GetBoneID() { 
+        return m_ID; 
+    }
 
 
     /* Gets the current index on mKeyPositions to interpolate to based on
@@ -117,6 +105,8 @@ private:
     /* Gets normalized value for Lerp & Slerp*/
     float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)
     {
+       
+        
         float scaleFactor = 0.0f;
         float midWayLength = animationTime - lastTimeStamp;
         float framesDiff = nextTimeStamp - lastTimeStamp;
@@ -133,15 +123,23 @@ private:
 
         int p0Index = GetPositionIndex(animationTime);
         int p1Index = p0Index + 1;
+
+
         float scaleFactor = GetScaleFactor(m_Positions[p0Index].timeStamp,
             m_Positions[p1Index].timeStamp, animationTime);
+
+       
+
         glm::vec3 finalPosition = glm::mix(m_Positions[p0Index].position,
             m_Positions[p1Index].position, scaleFactor);
+
+
+
         return glm::translate(glm::mat4(1.0f), finalPosition);
     }
 
-    /*figures out which rotations keys to interpolate b/w and performs the interpolation
-    and returns the rotation matrix*/
+    ///*figures out which rotations keys to interpolate b/w and performs the interpolation
+    //and returns the rotation matrix*/
     glm::mat4 InterpolateRotation(float animationTime)
     {
         if (1 == m_NumRotations)
@@ -154,8 +152,7 @@ private:
         int p1Index = p0Index + 1;
         float scaleFactor = GetScaleFactor(m_Rotations[p0Index].timeStamp,
             m_Rotations[p1Index].timeStamp, animationTime);
-        glm::quat finalRotation = glm::slerp(m_Rotations[p0Index].orientation,
-            m_Rotations[p1Index].orientation, scaleFactor);
+        glm::quat finalRotation = glm::slerp(m_Rotations[p0Index].orientation,m_Rotations[p1Index].orientation, scaleFactor);
         finalRotation = glm::normalize(finalRotation);
         return glm::toMat4(finalRotation);
     }

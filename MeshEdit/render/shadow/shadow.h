@@ -16,11 +16,11 @@ public:
 	~Shadow();
     unsigned int depthMapFBO;
     unsigned int depthCubemap;
-
+    Shader* simpleDepthShader;
 
 private:
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-    Shader* simpleDepthShader;
+   
     float near_plane = 0.001f;
     float far_plane = 100.0f;
 };

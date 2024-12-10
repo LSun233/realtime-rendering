@@ -59,6 +59,9 @@ public:
         
         shader->use();
         shader->setVec3("camPos", cam.Position);
+
+        glm::mat4 mat = GetModelMat();
+
         shader->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
 
 
