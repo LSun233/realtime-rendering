@@ -203,6 +203,9 @@
     <ClInclude Include="Animation\Charater.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mesh\object.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader\blinn_phong.vert">

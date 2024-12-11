@@ -167,6 +167,7 @@
     <ClInclude Include="Animation\Charater.h" />
     <ClInclude Include="FileIO\daeRead.h" />
     <ClInclude Include="mesh\MeshBase.h" />
+    <ClInclude Include="mesh\object.h" />
     <ClInclude Include="mesh\primitive\TexPlane.h" />
     <ClInclude Include="mesh\primitive\cube.h" />
     <ClInclude Include="mesh\primitive\plane.h" />

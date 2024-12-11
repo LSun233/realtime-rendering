@@ -4,10 +4,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include"imgui/ImGuiFileDialog.h"
-#include"mesh/primitive/line.h"
 #include"UIParam.h"
-
-
+#include"../mesh/object.h"
 void init_imgui(GLFWwindow* window)
 {
     // Setup Dear ImGui context
@@ -28,7 +26,7 @@ void init_imgui(GLFWwindow* window)
 }
 ImVec2 dragStartPos;
 bool isDragging = false;
-void model_control(vector<MeshBase*> meshList, Camera& cam)
+void model_control(vector<Object*> meshList, Camera& cam)
 {
     if (meshList.size() == 0)return;
     UIParam* ui_param = UIParam::getInstance();
@@ -72,7 +70,7 @@ void model_control(vector<MeshBase*> meshList, Camera& cam)
             io.MousePos.y> Menue_pos.y && io.MousePos.y < (Menue_pos.y + Menue_size.y);
         if (!on_menue)
         {
-            glm::vec3 trans = 0.1f * io.MouseDelta.x * cam.Right - 0.1f * io.MouseDelta.y * cam.Up;
+            glm::vec3 trans = 0.001f * io.MouseDelta.x * cam.Right - 0.001f * io.MouseDelta.y * cam.Up;
             target->translate(trans);
         }
     }
@@ -92,7 +90,7 @@ void model_control(vector<MeshBase*> meshList, Camera& cam)
         target->translate(trans);
     }
 }
-void pick(vector<MeshBase*> meshList, Camera& cam)
+void pick(vector<Object*> meshList, Camera& cam)
 {
     UIParam* ui_param = UIParam::getInstance();
     ImGuiIO& io = ImGui::GetIO();
@@ -244,7 +242,7 @@ void  camera_control(Camera& cam)
     }
 
 }
-void interaction(vector<MeshBase*> meshList, MeshBase* light, Camera& cam)
+void interaction(vector<Object*>meshList, MeshBase* light, Camera& cam)
 {
     UIParam* ui_param = UIParam::getInstance();
     if (ui_param->control_type == 0)
@@ -262,7 +260,7 @@ void interaction(vector<MeshBase*> meshList, MeshBase* light, Camera& cam)
    
     pick(meshList, cam);
 }
-void RenderMainImGui(vector<MeshBase*> meshList, MeshBase* light,Camera& cam )
+void RenderMainImGui(vector<Object*> meshList, MeshBase* light,Camera& cam )
 {
     UIParam* ui_param = UIParam::getInstance();
     ImGui_ImplOpenGL3_NewFrame();

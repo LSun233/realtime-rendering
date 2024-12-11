@@ -8,11 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include"../../mesh/mesh.h"
+#include"../../mesh/Object.h"
 class Shadow
 {
 public:
 	Shadow();
-    void render(std::vector<MeshBase*>meshList, Camera& cam, glm::vec3 lightPos);
+    void render(vector<Object*>objectList, Camera& cam, glm::vec3 lightPos);
 	~Shadow();
     unsigned int depthMapFBO;
     unsigned int depthCubemap;
@@ -50,9 +51,8 @@ Shadow::Shadow()
     simpleDepthShader=new Shader("../data/shader/point_shadows_soft_depth.vert", "../data/shader/point_shadows_soft_depth.frag", "../data/shader/point_shadows_soft_depth.geom");
 }
 
- void Shadow::render(std::vector<MeshBase*>meshList, Camera& cam,glm::vec3 lightPos)
+ void Shadow::render(vector<Object*> objectList, Camera& cam,glm::vec3 lightPos)
 {
-
     glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
     std::vector<glm::mat4> shadowTransforms;
     shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
@@ -75,21 +75,44 @@ Shadow::Shadow()
     simpleDepthShader->setVec3("lightPos", lightPos);
 
 
-    for (int i = 0; i < meshList.size(); i++)
+
+    //设置每个object的每个mesh的shadowshader
+    for (int i = 0; i < objectList.size(); i++)
     {
-        Shader* pshader = meshList[i]->shader;
-        //先将mesh的shader设置为simpleDepthShader
-        meshList[i]->shader = simpleDepthShader;
-        meshList[i]->Draw(cam);
-        //渲染完后再将mesh的shader还原
-        meshList[i]->shader = pshader;
-        meshList[i]->shader->use();
-        UIParam* ui_param = UIParam::getInstance();
-        meshList[i]->shader->setMat4("view",cam.GetViewMatrix());
-        meshList[i]->shader->setBool("shadowsFlag", ui_param->shadow);
-        meshList[i]->shader->setFloat("far_plane", far_plane);
-        meshList[i]->shader->setFloat("near_plane", near_plane);
-        meshList[i]->shader->SetTexture3D("depthMap",depthCubemap);
+
+        Object* OP = objectList[i];
+        for (int j = 0; j < OP->m_meshes.size(); j++)
+        {
+
+            OP->m_meshes[j]->shadowShader = simpleDepthShader;
+
+        }
+    }
+
+    //依此渲染每个物体
+    for (int i = 0; i < objectList.size(); i++)
+    {
+        Object* OP = objectList[i];
+        OP->ShadowDraw(cam);
+    }
+
+    //将深度图传入每个object的每个mesh的渲染shader中，并设置相关参数
+    UIParam* ui_param = UIParam::getInstance();
+    for (int i = 0; i < objectList.size(); i++)
+    {
+
+        Object* OP = objectList[i];
+        for (int j = 0; j < OP->m_meshes.size(); j++)
+        {
+         
+            
+            OP->m_meshes[j]->shader->use();
+            OP->m_meshes[j]->shader->setMat4("view", cam.GetViewMatrix());
+            OP->m_meshes[j]->shader->setBool("shadowsFlag", ui_param->shadow);
+            OP->m_meshes[j]->shader->setFloat("far_plane", far_plane);
+            OP->m_meshes[j]->shader->setFloat("near_plane", near_plane);
+            OP->m_meshes[j]->shader->SetTexture3D("depthMap", depthCubemap);
+        }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_DEPTH_BUFFER_BIT);

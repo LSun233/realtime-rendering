@@ -1,3 +1,4 @@
+#pragma once
 #include"shader_m.h"
 #include"../type_define.h"
 #include"../camera.h"

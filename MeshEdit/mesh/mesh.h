@@ -21,6 +21,7 @@ public:
     {
         this->vertices = vertices;
         this->indices = indices;
+
         setupMesh();
     }
 
@@ -38,16 +39,17 @@ public:
     {
         DrawBVH(cam, bvh->BVHRoot);
     }
-    void Draw(Camera& cam) override
+    void Draw(Shader* shaderPass, Camera& cam) override
     {
-        if (shader == nullptr)
+
+        if (shaderPass == nullptr)
         {
-            shader = new BPShader();
+            std::cout << "shader 为空" << std::endl;
         }
-        
-        shader->use();
-        shader->setVec3("viewPos", cam.Position);
-        shader->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
+
+        shaderPass->use();
+        shaderPass->setVec3("viewPos", cam.Position);
+        shaderPass->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
         
         // bind appropriate textures
         unsigned int diffuseNr = 1;
@@ -70,7 +72,7 @@ public:
                 number = std::to_string(heightNr++); // transfer unsigned int to string
 
             // now set the sampler to the correct texture unit
-            glUniform1i(glGetUniformLocation(shader->ID, (name + number).c_str()), i);
+            glUniform1i(glGetUniformLocation(shaderPass->ID, (name + number).c_str()), i);
             // and finally bind the texture
             glBindTexture(GL_TEXTURE_2D, textures[i].id);   
         }
@@ -105,7 +107,7 @@ private:
            
         boudingBox bbox(BVHRoot->aabb.max, BVHRoot->aabb.min);
         bbox.model = GetModelMat();
-        bbox.Draw(cam);
+       // bbox.Draw(cam);
         if (BVHRoot->n > 0)   //叶子节点 
         {
             return;

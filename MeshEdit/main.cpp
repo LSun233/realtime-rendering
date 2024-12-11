@@ -19,10 +19,11 @@
 #include"shader//BRDFSSAO.h"
 #include"render/shadow/shadow.h"
 #include"render/GI/SSAO.h"
-#include"Animation/Bone.h"
 #include"Animation/animation.h"
 #include"Animation/animator.h"
 #include"FileIO/daeRead.h"
+#include"Animation/Charater.h"
+#include"mesh/object.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -33,9 +34,7 @@ float lastY = ISCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 
-// timing
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+
 
 
 /// <summary>
@@ -81,65 +80,30 @@ int main()
 
     string xmlpath = "../data/model/Walking.dae";
 
-    //std::vector<Vertex> vertices;
-    //std::vector<unsigned int> vertexIndices;
 
     vector<Mesh*> meshes;
     vector<Animation*>animations;
-
     daeRead(xmlpath, meshes, animations);
 
 
+    BRDF* shaderBRDF1 = new BRDF(glm::vec3(0.5, 0.0, 0.0));
+    meshes[0]->shader = shaderBRDF1;
+
+    camera.OnCenter(meshes[0]->aabb);
 
 
+    BRDF* shaderBRDF2 = new BRDF(glm::vec3(0.5, 0.2, 0.3));
+    meshes[1]->shader = shaderBRDF2;
+
+    Charater* robot = new Charater(meshes, animations);
 
 
-    Animator animator1(animations[0]);
-    Animator animator2(animations[1]);
-
-
-    vector<MeshBase*> meshList;
-
+    vector<Object*> objectList;
+    objectList.push_back(robot);
     
     
-    //读入模型数据
-
-    Mesh* pmesh1 = meshes[0];
-    Mesh* pmesh2 = meshes[1];
-
-
-
-
-    //Mesh*  pmesh =new  Mesh(path);
-    BRDF* shaderBRDF_dragon = new BRDF(glm::vec3(0.5, 0.0, 0.0));
-    pmesh1->shader = shaderBRDF_dragon;
-    pmesh1->name = " dragon";
-    camera.OnCenter(pmesh1->aabb);
-    meshList.push_back(pmesh1);
-
-    BRDF* shaderBRDF_dragon1 = new BRDF(glm::vec3(0.5, 0.2, 0.3));
-    pmesh2->shader = shaderBRDF_dragon1;
-    pmesh2->name = " dragon";
-    camera.OnCenter(pmesh2->aabb);
-    meshList.push_back(pmesh2);
-
-
-
-
-
-
     plane* floor =new  plane(glm::vec3(10.0, 10.0, 10.0));
-    floor->name = "floor";
-    BRDF* shaderBRDF_floor = new BRDF(glm::vec3(1.0, 1.0, 1.0));
-    floor->shader = shaderBRDF_floor;
-    meshList.push_back(floor);
-
-    plane* wall = new  plane(glm::vec3(10.0, 10.0, 10.0));
-    floor->name = "wall";
-    BRDF* shaderBRDF_wall = new BRDF(glm::vec3(1.0, 1.0, 1.0));
-    wall->shader = shaderBRDF_wall;
-    //meshList.push_back(wall);
-
+    objectList.push_back(floor);
 
     std::vector<std::string> faces
     {
@@ -153,23 +117,20 @@ int main()
     SkyBox skybox(faces);
     
    
-    BRDFSSAO* shaderBRDFSSA0=new BRDFSSAO();
-    SSAO ssao = SSAO();
+    //BRDFSSAO* shaderBRDFSSA0=new BRDFSSAO();
+    //SSAO ssao = SSAO();
     SimpleShader* lightshader = new SimpleShader();
  
-    //初始化光照
-    // lighting
+    ////初始化光照
+    //// lighting
   
     glm::vec3 lightColor(1.0f, 1.0f, 0.9f);
     CUBE lightcube = CUBE(glm::vec3(0.01, 0.01, 0.01), glm::vec3(0.1, 0.3, 0.0));
 
+
+
     //阴影
     Shadow  shadow= Shadow();
-
- 
-
-
-
     while (!glfwWindowShouldClose(window))
     {
         // render
@@ -179,82 +140,73 @@ int main()
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        if (ui_param->filePath != "")
-        {
-            Mesh*  mesh1 =new  Mesh(ui_param->filePath);
-            meshList.push_back(mesh1);
-            ui_param->filePath = "";
-        }
+        //if (ui_param->filePath != "")
+        //{
+        //    Mesh*  mesh1 =new  Mesh(ui_param->filePath);
+        //    meshList.push_back(mesh1);
+        //    ui_param->filePath = "";
+        //}
 
         // per-frame time logic
         // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        ui_param->fps = 1.0 / deltaTime;
-        lastFrame = currentFrame;
+        ui_param->deltaTime = currentFrame - ui_param->lastFrame;
+        ui_param->fps = 1.0 / ui_param->deltaTime;
+        ui_param->lastFrame = currentFrame;
 
-        animator1.UpdateAnimation(deltaTime);
-        animator2.UpdateAnimation(deltaTime);
 
+        //更新动画
+        //for (int i = 0; i < objectList.size(); i++)
+        //{
+        //    if (objectList[i]->PlayAnimtion)
+        //    {
+        //        objectList[i]->UpdateAnimation(ui_param->deltaTime);
+
+        //    }
+        //}
+        
         // render scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
        
 
-
- 
         //draw scene
         if (ui_param->SSA0)
         {
-                shaderBRDFSSA0->metallic = ui_param->metallic;
-                shaderBRDFSSA0->roughness = ui_param->roughness;
-                shaderBRDFSSA0->use();
-                shaderBRDFSSA0->setMaterial();
-                shaderBRDFSSA0->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
-                vector<Shader*>MeshShader(meshList.size());
-                for (int i = 0; i < meshList.size(); i++)
-                {
-                    MeshShader[i] = meshList[i]->shader;
-                    meshList[i]->shader = shaderBRDFSSA0;
-                }
-                shadow.render(meshList, camera, lightcube.GetPostion());
-                for (int i = 0; i < meshList.size(); i++)
-                {
-                    meshList[i]->shader = MeshShader[i];
-                }
-                ssao.render(meshList, camera, shaderBRDFSSA0);
+                //shaderBRDFSSA0->metallic = ui_param->metallic;
+                //shaderBRDFSSA0->roughness = ui_param->roughness;
+                //shaderBRDFSSA0->use();
+                //shaderBRDFSSA0->setMaterial();
+                //shaderBRDFSSA0->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
+                //vector<Shader*>MeshShader(meshList.size());
+                //for (int i = 0; i < meshList.size(); i++)
+                //{
+                //    MeshShader[i] = meshList[i]->shader;
+                //    meshList[i]->shader = shaderBRDFSSA0;
+                //}
+                //shadow.render(meshList, camera, lightcube.GetPostion());
+                //for (int i = 0; i < meshList.size(); i++)
+                //{
+                //    meshList[i]->shader = MeshShader[i];
+                //}
+                //ssao.render(meshList, camera, shaderBRDFSSA0);
         }
         else
         {
-            shadow.render(meshList, camera, lightcube.GetPostion());
-            for (int i = 0; i < meshList.size(); i++)
+            shadow.render(objectList, camera, lightcube.GetPostion());
+
+            for (int i = 0; i < objectList.size(); i++)
             {
-                    meshList[i]->shader->use();
-                    meshList[i]->shader->metallic = ui_param->metallic;
-                    meshList[i]->shader->roughness = ui_param->roughness;
-                    meshList[i]->shader->setMaterial();
-                    meshList[i]->shader->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
-                    meshList[i]->Draw(camera);
+                Object* OP = objectList[i];
+                for (int j = 0; j < OP->m_meshes.size(); j++)
+                {
+                    OP->m_meshes[j]->shader->use();
+                    OP->m_meshes[j]->shader->setMaterial();
+                    OP->m_meshes[j]->shader->setLight(camera.GetViewMatrix(), lightcube.GetPostion(), lightColor);
+                }
+                OP->Draw(camera);
             }
-
-            //传入骨骼变换矩阵
-            auto transforms1 = animator1.GetFinalBoneMatrices();
-            meshList[0]->shader->use();
-            for (int i = 0; i < transforms1.size(); ++i)
-            {
-                    meshList[0]->shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms1[i]);
-            
-            }
-
-            auto transforms2 = animator2.GetFinalBoneMatrices();
-            meshList[1]->shader->use();
-            for (int i = 0; i < transforms2.size(); ++i)
-            {
-                meshList[1]->shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms2[i]);
-
-            }
-
         }
 
         //draw light
@@ -263,15 +215,15 @@ int main()
 
         skybox.Draw(&camera);
 
-        lightshader->use();
-        lightshader->setVec4("color", glm::vec4(lightColor,1.0));
+        //lightshader->use();
+        //lightshader->setVec4("color", glm::vec4(lightColor,1.0));
 
-        lightcube.shader = lightshader;
-        lightcube.Draw(camera);
+        //lightcube.shader = lightshader;
+        //lightcube.Draw(camera);
 
 
         // render ui
-        RenderMainImGui(meshList,&lightcube, camera);
+        RenderMainImGui(objectList,&lightcube, camera);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -20,7 +20,10 @@ public:
     vector<Texture>      textures;
     string name;
     int GL_TYPE;
+
     Shader* shader=nullptr;
+    Shader* shadowShader = nullptr;
+
     // render data 
     unsigned int VAO, VBO, EBO;
 
@@ -41,6 +44,8 @@ public:
     BVH::BVH* bvh;
     HalfEdge::HalfEdgeMesh* halfEdge;
 
+    bool PlayAnimtion=false;
+
     // constructor
     MeshBase(glm::vec3 postion=glm::vec3(0,0,0))
     {
@@ -50,19 +55,16 @@ public:
     }
 
 
-    virtual void Draw(Camera& cam)
+    virtual void Draw(Shader* shaderpass,Camera& cam)
     {
-        if (shader == nullptr)
-        {
-            shader = new SimpleShader;
-        }
+
         
-        shader->use();
-        shader->setVec3("camPos", cam.Position);
+        shaderpass->use();
+        shaderpass->setVec3("camPos", cam.Position);
 
         glm::mat4 mat = GetModelMat();
 
-        shader->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
+        shaderpass->setMVPmatrix(GetModelMat(), cam.GetViewMatrix(), cam.GetPerspectiveMatrix());
 
 
         // draw mesh

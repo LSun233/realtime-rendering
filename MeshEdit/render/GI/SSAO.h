@@ -235,7 +235,7 @@ private:
             shaderGeometryPass->setVec3("albedo", pshader->getMaterial());
             //先将mesh的材质设置为shaderGeometryPass
             meshList[i]->shader = shaderGeometryPass;
-            meshList[i]->Draw(cam);
+            meshList[i]->Draw(meshList[i]->shader,cam);
             //渲染完后再将mesh的材质还原
             meshList[i]->shader = pshader;
         }

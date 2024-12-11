@@ -1,8 +1,10 @@
 #pragma once
 #ifndef PLANE_H
 #define PLANE_H
-#include"../MeshBase.h"
-class plane : public MeshBase {
+#include"../object.h"
+#include"../../shader/BRDF.h"
+#include"../../shader/SimpleShader.h"
+class plane : public Object {
 public:
 
     // constructor
@@ -20,11 +22,17 @@ public:
         v3.Normal = glm::vec3(0, 1, 0);
         v4.Normal = glm::vec3(0, 1, 0);
 
-        this->vertices = { v1,v2,v3,v4 };
-        this->indices = { 0,1,2, 2,3,0 };
+        vector<Vertex> vertices = { v1,v2,v3,v4 };
+        vector<unsigned int>indices = { 0,1,2, 2,3,0 };
+        Mesh* mesh = new Mesh(vertices, indices);
+        BRDF* shader_floor = new BRDF(glm::vec3(0.953, 0.943, 0.95));
+        mesh->shader = shader_floor;
+        mesh->shader->use();
+        
 
-        setupMesh();
+        m_meshes.push_back(mesh);
         GL_TYPE = GL_TRIANGLES;
+
     }
     ~plane()
     {

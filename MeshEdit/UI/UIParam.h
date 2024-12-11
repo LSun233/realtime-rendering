@@ -53,6 +53,10 @@ public:
     float bias = 0.025;
     float albedo[3]{ 0.5f, 0.0f, 0.00f };
 
+    // timing
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
+
 };
 
 
