@@ -8,7 +8,5 @@ https://github.com/user-attachments/assets/084a479e-842b-4882-afe1-4016e9caff40
 
 骨骼动画系统
 
-https://github.com/user-attachments/assets/81223784-95a8-4a83-81a7-98af33f8bc03
-
 
 
