@@ -24,7 +24,7 @@
     <ProjectGuid>{15742c5e-4204-413b-8cb5-333a5aaf9950}</ProjectGuid>
     <RootNamespace>MeshEdit</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>aniamtion</ProjectName>
+    <ProjectName>MeshEdit</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -47,7 +47,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -84,6 +84,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\3PartyLib\opencv\build\include;..\3PartyLib\eigen-3.4.0\eigen-3.4.0;..\3PartyLib\glm-1.0.1;..\3PartyLib\glad\include;..\3PartyLib\glfw\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\3PartyLib\opencv\build\x64\vc16\lib;..\3PartyLib\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <OutDir>../bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -131,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;EXPORTEDCLASSES_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <Optimization>Disabled</Optimization>
@@ -146,6 +147,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\3PartyLib\glad\src\glad.c" />
+    <ClCompile Include="Animation\animation.cpp" />
+    <ClCompile Include="Animation\animator.cpp" />
+    <ClCompile Include="Animation\Bone.cpp" />
+    <ClCompile Include="Animation\Charater.cpp" />
+    <ClCompile Include="FileIO\daeRead.cpp" />
+    <ClCompile Include="FileIO\PLY.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\ImGuiFileDialog.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -155,7 +162,27 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mesh\mesh.cpp" />
+    <ClCompile Include="mesh\MeshBase.cpp" />
+    <ClCompile Include="mesh\object.cpp" />
+    <ClCompile Include="mesh\primitive\AABB.cpp" />
+    <ClCompile Include="mesh\primitive\cube.cpp" />
+    <ClCompile Include="mesh\primitive\line.cpp" />
+    <ClCompile Include="mesh\primitive\plane.cpp" />
+    <ClCompile Include="mesh\primitive\TexPlane.cpp" />
+    <ClCompile Include="mesh\primitive\triangleFace.cpp" />
+    <ClCompile Include="renderAPP.cpp" />
+    <ClCompile Include="render\GI\SSAO.cpp" />
+    <ClCompile Include="render\shadow\shadow.cpp" />
     <ClCompile Include="render\skybox\stb_image.cpp" />
+    <ClCompile Include="shader\BRDF.cpp" />
+    <ClCompile Include="shader\shader_m.cpp" />
+    <ClCompile Include="BVH.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="halfEdge.cpp" />
+    <ClCompile Include="type_define.cpp" />
+    <ClCompile Include="UI\ui.cpp" />
+    <ClCompile Include="UI\UIParam.cpp" />
     <ClCompile Include="Utilis\tinyXML\tinystr.cpp" />
     <ClCompile Include="Utilis\tinyXML\tinyxml.cpp" />
     <ClCompile Include="Utilis\tinyXML\tinyxmlerror.cpp" />
@@ -166,21 +193,10 @@
     <ClInclude Include="Animation\animator.h" />
     <ClInclude Include="Animation\Bone.h" />
     <ClInclude Include="Animation\Charater.h" />
-    <ClInclude Include="FileIO\daeRead.h" />
-    <ClInclude Include="mesh\MeshBase.h" />
-    <ClInclude Include="mesh\object.h" />
-    <ClInclude Include="mesh\primitive\TexPlane.h" />
-    <ClInclude Include="mesh\primitive\cube.h" />
-    <ClInclude Include="mesh\primitive\plane.h" />
-    <ClInclude Include="render\GI\SSAO.h" />
-    <ClInclude Include="render\GI\标头.h" />
-    <ClInclude Include="render\shadow\shadow.h" />
-    <ClInclude Include="render\skybox\skybox.h" />
-    <ClInclude Include="render\skybox\stb_image.h" />
-    <ClInclude Include="shader\BPShader.h" />
     <ClInclude Include="BVH.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Deformation\ARAP.h" />
+    <ClInclude Include="FileIO\daeRead.h" />
     <ClInclude Include="halfEdge.h" />
     <ClInclude Include="imgui\dirent\dirent.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -197,23 +213,30 @@
     <ClInclude Include="imgui\stb\stb_image.h" />
     <ClInclude Include="imgui\stb\stb_image_resize.h" />
     <ClInclude Include="mesh\mesh.h" />
-    <ClInclude Include="PLY.h" />
+    <ClInclude Include="mesh\MeshBase.h" />
+    <ClInclude Include="mesh\object.h" />
     <ClInclude Include="mesh\primitive\AABB.h" />
+    <ClInclude Include="mesh\primitive\cube.h" />
     <ClInclude Include="mesh\primitive\line.h" />
-    <ClInclude Include="mesh\primitive\trianglFace.h" />
+    <ClInclude Include="mesh\primitive\plane.h" />
+    <ClInclude Include="mesh\primitive\TexPlane.h" />
+    <ClInclude Include="mesh\primitive\triangleFace.h" />
+    <ClInclude Include="FileIO\PLY.h" />
+    <ClInclude Include="renderAPP.h" />
+    <ClInclude Include="render\GI\SSAO.h" />
+    <ClInclude Include="render\shadow\shadow.h" />
+    <ClInclude Include="render\skybox\skybox.h" />
+    <ClInclude Include="render\skybox\stb_image.h" />
+    <ClInclude Include="shader\BPShader.h" />
     <ClInclude Include="shader\BRDF.h" />
     <ClInclude Include="shader\BRDFSSAO.h" />
     <ClInclude Include="shader\shader_m.h" />
     <ClInclude Include="shader\SimpleShader.h" />
-    <ClInclude Include="type_define.h" />
+    <ClInclude Include=".h" />
     <ClInclude Include="UI\ui.h" />
     <ClInclude Include="UI\UIParam.h" />
     <ClInclude Include="Utilis\tinyXML\tinystr.h" />
     <ClInclude Include="Utilis\tinyXML\tinyxml.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\data\shader\blinn_phong.frag" />
-    <None Include="..\data\shader\blinn_phong.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

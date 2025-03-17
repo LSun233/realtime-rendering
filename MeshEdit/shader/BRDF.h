@@ -3,33 +3,19 @@
 #include"../type_define.h"
 #include"../camera.h"
 
-
-class BRDF : public Shader {
+#ifdef EXPORTEDCLASSES_EXPORTS
+#define EXPORTEDCLASSES_API __declspec(dllexport)
+#else
+#define EXPORTEDCLASSES_API __declspec(dllimport)
+#endif
+class EXPORTEDCLASSES_API BRDF : public Shader {
 public:
     
-    BRDF(glm::vec3 color,const char* vertexPath = "../data/shader/BRDF.vert", const char* fragmentPath = "../data/shader/BRDF.frag") :Shader(vertexPath, fragmentPath)
-    {
-        albedo = color;
-        shader_type = ShaderType::BRDF;
-    }
+    BRDF(glm::vec3 color, const char* vertexPath = "../data/shader/BRDF.vert", const char* fragmentPath = "../data/shader/BRDF.frag") ;
 
-    virtual glm::vec3 getMaterial()override
-    {
-        return albedo;
-    }
+    virtual glm::vec3 getMaterial()override;
 
-    virtual void setLight(glm::mat4 view, glm::vec3 lightPos, glm::vec3 lightColor)
-    {
-        use();
-        setVec3("lightColors", lightColor);
-        setVec3("lightPositionsInView", glm::vec3(view * glm::vec4(lightPos, 1.0)));
-    }
+    virtual void setLight(glm::mat4 view, glm::vec3 lightPos, glm::vec3 lightColor);
 
-    void setMaterial()
-    {
-        use();
-        setVec3("albedo", albedo);
-        setFloat("metallic", metallic);
-        setFloat("roughness", roughness);
-    }
+    void setMaterial();
 };
