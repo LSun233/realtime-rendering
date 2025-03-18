@@ -62,7 +62,11 @@ void RenderApp::init(void(*start)(RenderApp*))
     glm::vec3 lightColor(1.0f, 1.0f, 0.9f);
     light = new CUBE(glm::vec3(0.01, 0.01, 0.01), glm::vec3(0.1, 0.3, 0.0));
     start(this);
-    camera->OnCenter(objectList[0]->m_meshes[0]->aabb);
+    if (objectList.size() > 0&& objectList[0]->m_meshes.size()>0)
+    {
+        camera->OnCenter(objectList[0]->m_meshes[0]->aabb);
+    }
+    
     shadow = new Shadow();
 
 }
@@ -96,7 +100,7 @@ void RenderApp::run(void(*updata)(RenderApp*))
         updata(this);
 
         //draw scene
-        shadow->render(objectList, *camera, light->GetPostion());
+        shadow->render (objectList, *camera, light->GetPostion());
         for (int i = 0; i < objectList.size(); i++)
         {
             Object* OP = objectList[i];

@@ -1,13 +1,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include"shadow.h"
-#include"../../UI/UIParam.h"
+#include"UI/UIParam.h"
 #include<iostream>
-#include"../../type_define.h"
-#include"../../shader/shader_m.h"
-#include"../../mesh/mesh.h"
-#include"../../mesh/Object.h"
-#include"../../Camera.h"
+#include"type_define.h"
+#include"shader/shader_m.h"
+#include"mesh/mesh.h"
+#include"mesh/Object.h"
+#include"Camera.h"
 Shadow::Shadow()
 {
     // configure depth map FBO

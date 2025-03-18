@@ -1,6 +1,6 @@
 #pragma once
 #include"plane.h"
-#include"../../shader/BRDF.h"
+#include"shader/BRDF.h"
 
     // constructor
 plane::plane(glm::vec3 scale)

@@ -1,6 +1,6 @@
 #include"SSAO.h"
-#include"../../UI/UIParam.h"
-#include"../../Camera.h"
+#include"UI/UIParam.h"
+#include"Camera.h"
 SSAO::SSAO()
     {
         shaderSSAO = new Shader("../data/shader/ssao.vert", "../data/shader/ssao.frag");

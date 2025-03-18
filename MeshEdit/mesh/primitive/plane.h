@@ -1,7 +1,7 @@
 #pragma once
 #ifndef PLANE_H
 #define PLANE_H
-#include"../object.h"
+#include"mesh/object.h"
 
 class EXPORTEDCLASSES_API plane : public Object {
 

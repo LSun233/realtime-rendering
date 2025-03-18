@@ -1,10 +1,10 @@
 #pragma once
 #include<vector>
-#include"animator.h"
-#include"Charater.h"
-#include"../UI/UIParam.h"
-#include"animator.h"
-#include"../mesh/object.h"
+#include"Animation/animator.h"
+#include"Animation/Charater.h"
+#include"UI/UIParam.h"
+#include"Animation/animator.h"
+#include"mesh/object.h"
     Charater::Charater(std::vector<Mesh*>meshes, std::vector <Animation*> panimators) :Object(meshes)
     {
         m_animations = panimators;

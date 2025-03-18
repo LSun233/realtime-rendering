@@ -1,8 +1,8 @@
 #pragma once
-#include"../../shader/shader_m.h"
+#include"shader/shader_m.h"
 #include <random>
-#include"../../mesh/mesh.h"
-#include"../../type_define.h"
+#include"mesh/mesh.h"
+#include"type_define.h"
 class SSAO 
 {
 public:

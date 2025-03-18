@@ -1,4 +1,4 @@
-#include"BRDF.h"
+#include"shader/BRDF.h"
 BRDF::BRDF(glm::vec3 color, const char* vertexPath , const char* fragmentPath ) :Shader(vertexPath, fragmentPath)
     {
         albedo = color;

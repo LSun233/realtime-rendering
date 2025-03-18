@@ -1,7 +1,7 @@
 #pragma once
 #ifndef CUBE_H
 #define CUBE_H
-#include"../Object.h"
+#include"mesh/Object.h"
 class EXPORTEDCLASSES_API CUBE : public Object {
 public:
 

@@ -1,6 +1,6 @@
 #pragma once
-#include"animation.h"
-#include"Bone.h"
+#include"Animation/animation.h"
+#include"Animation/Bone.h"
 Animation::Animation(NodeData rootNode, std::vector<Bone>Bones, std::map<std::string, BoneInfo> BoneInfoMap)
 {
     m_RootNode = rootNode;

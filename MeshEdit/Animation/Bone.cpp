@@ -1,4 +1,4 @@
-#include"Bone.h"
+#include"Animation/Bone.h"
 
     Bone::Bone(string name, int id)
     {

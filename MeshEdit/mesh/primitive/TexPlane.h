@@ -1,7 +1,7 @@
 #pragma once
 #ifndef CANVAS_H
 #define CANVAS_H
-#include"../MeshBase.h"
+#include"mesh/MeshBase.h"
 class TexPlane : public MeshBase {
 public:
     GLuint textureID;

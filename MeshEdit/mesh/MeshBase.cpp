@@ -1,7 +1,6 @@
-#include"MeshBase.h"
-#include"../halfEdge.h"
-
-#include"../camera.h"
+#include"mesh/MeshBase.h"
+#include"halfEdge.h"
+#include"camera.h"
     // constructor
 MeshBase::MeshBase(glm::vec3 postion)
     {

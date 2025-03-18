@@ -1,4 +1,4 @@
-#include"shader_m.h"
+#include"shader/shader_m.h"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath )
     {

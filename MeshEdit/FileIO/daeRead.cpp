@@ -1,7 +1,7 @@
-#include"daeRead.h"
-#include"../Animation/animation.h"
-#include"../Animation/Bone.h"
-#include"../mesh/mesh.h"
+#include"FileIO/daeRead.h"
+#include"Animation/animation.h"
+#include"Animation/Bone.h"
+#include"mesh/mesh.h"
 #include"../Utilis/tinyXML/tinyxml.h"
 
 // 帮助函数：分割字符串并返回浮点数向量 

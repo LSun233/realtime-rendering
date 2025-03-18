@@ -1,6 +1,6 @@
-#include"animator.h"
-#include"Bone.h"
-#include"Animation.h"
+#include"Animation/animator.h"
+#include"Animation/Bone.h"
+#include"Animation/Animation.h"
 Animator::Animator(Animation* animation)
 	{
 		m_CurrentTime = 0.0;

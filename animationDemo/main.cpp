@@ -6,6 +6,7 @@
 #include"mesh/primitive/plane.h"
 #include"shader/BRDF.h""
 
+
 void start(RenderApp* pViewer)
 {
     std::string xmlpath = "../data/model/Walking.dae";
@@ -26,11 +27,12 @@ void start(RenderApp* pViewer)
 
     Object* floor = new  plane(glm::vec3(10.0, 10.0, 10.0));
     pViewer->objectList.push_back(floor);
-
+                                         
 }
 
 void updata(RenderApp* p)
 {
+
 
 }
 

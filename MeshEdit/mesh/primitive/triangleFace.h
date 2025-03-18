@@ -1,6 +1,6 @@
 #ifndef TRIANGLFACE_H
 #define TRIANGLFACE_H
-#include"../MeshBase.h"
+#include"mesh/MeshBase.h"
 class TriangleFace : public MeshBase {
 public:
 

@@ -4,8 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
-#include"../../camera.h"
-#include"../MeshBase.h"
+#include"camera.h"
+#include"mesh/MeshBase.h"
 class  Line : public MeshBase
 {
 public:

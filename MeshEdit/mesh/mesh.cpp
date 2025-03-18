@@ -1,18 +1,18 @@
-﻿#include"mesh.h"
+﻿#include"mesh/mesh.h"
 #include <glad/glad.h> // holds all OpenGL type declarations
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "../shader/shader_m.h"
+#include "shader/shader_m.h"
 #include <string>
 #include <vector>
-#include"../type_define.h"
-#include"../BVH.h"
-#include"../halfEdge.h"
+#include"type_define.h"
+#include"BVH.h"
+#include"halfEdge.h"
 #include"primitive/line.h"
 #include"primitive/AABB.h"
 
-#include"../FileIO/PLY.h"
-#include"../type_define.h"
+#include"FileIO/PLY.h"
+#include"type_define.h"
 Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
 {
         this->vertices = vertices;

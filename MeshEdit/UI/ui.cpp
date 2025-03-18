@@ -1,5 +1,5 @@
-#include"ui.h"
-#include"../camera.h"
+#include"UI/ui.h"
+#include"camera.h"
 ImVec2 dragStartPos;
 bool isDragging = false;
 void init_imgui(GLFWwindow* window)
@@ -259,8 +259,6 @@ void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    if (ui_param->show_demo_window)
-        ImGui::ShowDemoWindow(&ui_param->show_demo_window);
     bool flag = true;
     if (ui_param->back_ground)
     {
@@ -323,10 +321,13 @@ void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
             while (ui_param->filePath.find('\\') != ui_param->filePath.npos)
             {
                 ui_param->filePath = ui_param->filePath.replace(ui_param->filePath.find('\\'), 1, 1, '/');
+                
             }
 
         }
+      
         ImGuiFileDialog::Instance()->Close();
+
     }
     if (ImGui::CollapsingHeader("scene list", ImGuiTreeNodeFlags_DefaultOpen))
     {

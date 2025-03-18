@@ -1,6 +1,6 @@
 
-#include"PLY.h"
-#include"../type_define.h"
+#include"FileIO/PLY.h"
+#include"type_define.h"
 
 void plyRead(std::string path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {

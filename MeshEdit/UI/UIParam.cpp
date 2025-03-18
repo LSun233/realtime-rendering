@@ -1,5 +1,5 @@
 // UIParam.cpp
-#include "UIParam.h"
+#include "UI/UIParam.h"
 
 // 初始化静态成员变量
 UIParam* UIParam::instance = nullptr;

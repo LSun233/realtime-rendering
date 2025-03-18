@@ -1,5 +1,5 @@
 #include"TexPlane.h"
-#include"../MeshBase.h"
+#include"mesh/MeshBase.h"
 
 TexPlane::TexPlane()
     {

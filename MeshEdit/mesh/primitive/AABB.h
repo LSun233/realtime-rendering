@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include"../MeshBase.h"
+#include"mesh/MeshBase.h"
 class boudingBox : public MeshBase
 {
 public:
