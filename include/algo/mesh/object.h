@@ -5,11 +5,9 @@
 class EXPORTEDCLASSES_API Object : public MeshBase
 {
 public:
-    Object();
-
-    Object(std::vector<Mesh*>meshes);
-    Object(Mesh* mesh);
-
+    Object(string _name = "");
+    Object(std::vector<Mesh*>meshes,string _name="");
+    Object(Mesh* mesh , string _name = "");
     ~Object();
 
 
@@ -20,6 +18,9 @@ public:
     virtual void UpdateAnimation(float deltaTime);
 public :
     std::vector<Mesh*> m_meshes;
+    bool active;
+
+    std::string name;
 private:
 
 

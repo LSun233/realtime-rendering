@@ -20,14 +20,16 @@ public:
 	std::vector<Object*> objectList;
 	Shadow* shadow;
 	Object* light;
-public:
+	float deltaTime = 0.01;
 
+public:
+	static RenderApp* getInstance();
 	RenderApp();
-	void init(void (*start)(RenderApp*));
-	void run(void(*updata)(RenderApp*));
+	void init(void (*start)());
+	void run(void(*updata)());
 	~RenderApp();
 private:
-
+	static RenderApp* instance;
 	GLFWwindow* window;
 	unsigned int quadVAO = 0;
 	unsigned int quadVBO = 0;

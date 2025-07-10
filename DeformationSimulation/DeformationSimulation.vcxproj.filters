@@ -18,19 +18,10 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="simulator.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TetGen.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TetGen.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="simulator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <CudaCompile Include="vectorAdd.cu">
+      <Filter>源文件</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

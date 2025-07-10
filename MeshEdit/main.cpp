@@ -6,8 +6,9 @@
 #include"mesh/primitive/plane.h"
 #include"shader/BRDF.h""
 
-void start(RenderApp* pViewer)
+void start()
 {
+    RenderApp* pViewer= RenderApp::getInstance();
     std::string xmlpath = "../data/model/Walking.dae";
     vector<Mesh*> meshes;
     vector<Animation*>animations;
@@ -29,9 +30,9 @@ void start(RenderApp* pViewer)
 
 }
 
-void updata(RenderApp* p)
+void updata()
 {
-
+    RenderApp* pViewer = RenderApp::getInstance();
 }
 
 int main()

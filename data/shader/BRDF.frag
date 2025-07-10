@@ -19,7 +19,7 @@ uniform mat4 view;
 uniform samplerCube depthMap;
 uniform float far_plane;             
 uniform float near_plane;
-uniform float light_size=0.005;
+uniform float light_size=0.001;
 uniform bool shadowsFlag;
 
 float blockRadiusCalculation(vec3 fragPos)
@@ -33,8 +33,8 @@ float blockRadiusCalculation(vec3 fragPos)
 float blockDepthCalculation(vec3 fragPos,float Radius )
 {
      vec3 lightpose=(inverse(view)*vec4(lightPositionsInView,1.0)).xyz;
-     float bias = 0.01; 
-     float samples = 6.0;
+     float bias = 0.001; 
+     float samples = 4.0;
      vec3 fragToLight = fragPos - lightpose;
      float closestDepth = texture(depthMap, fragToLight).r;
      closestDepth *= far_plane;
@@ -98,7 +98,7 @@ float ShadowCalculation(vec3 fragPos)
 
     // PCF
      float shadow = 0.0;
-     float bias = 0.01; 
+     float bias = 0.001; 
      float samples = 6.0;
    
      for(float x = -offset; x < offset; x += offset / (samples * 0.5))
@@ -224,6 +224,5 @@ void main()
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
-
     FragColor = vec4(color, 1.0);
 }

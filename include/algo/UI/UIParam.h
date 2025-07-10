@@ -39,6 +39,7 @@ public:
     int control_type = 0;
     float roughness = 0.5;
     float metallic = 0.5;
+
     float radius = 0.5;
     float bias = 0.025;
     float albedo[3]{ 0.5f, 0.0f, 0.00f };

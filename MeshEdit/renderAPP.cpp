@@ -1,4 +1,7 @@
 #include"renderAPP.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,10 +11,11 @@
 #include"UI/ui.h"
 #include"render/shadow/shadow.h"
 #include"mesh/object.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <vector>
 #include"mesh/primitive/cube.h"
+#include"shader/BRDF.h"
+
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     ISCR_WIDTH = width;
@@ -43,6 +47,15 @@ GLFWwindow* RenderApp::creatGLFWwindow()
     glEnable(GL_DEPTH_TEST);
     return window;
 }
+
+RenderApp* RenderApp::instance = nullptr;
+RenderApp*  RenderApp::getInstance() 
+{
+    if (instance == nullptr) {
+        instance = new RenderApp();
+    }
+    return instance;
+}
 RenderApp::RenderApp()
 {
     camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -57,11 +70,11 @@ RenderApp::RenderApp()
 
 
 
-void RenderApp::init(void(*start)(RenderApp*))
+void RenderApp::init(void(*start)())
 {
     glm::vec3 lightColor(1.0f, 1.0f, 0.9f);
     light = new CUBE(glm::vec3(0.01, 0.01, 0.01), glm::vec3(0.1, 0.3, 0.0));
-    start(this);
+    start();
     if (objectList.size() > 0&& objectList[0]->m_meshes.size()>0)
     {
         camera->OnCenter(objectList[0]->m_meshes[0]->aabb);
@@ -72,7 +85,7 @@ void RenderApp::init(void(*start)(RenderApp*))
 }
 
 
-void RenderApp::run(void(*updata)(RenderApp*))
+void RenderApp::run(void(*updata)())
 {
     UIParam* ui_param = UIParam::getInstance();
     while (!glfwWindowShouldClose(window))
@@ -96,14 +109,29 @@ void RenderApp::run(void(*updata)(RenderApp*))
         ImVec4 clear_color = ImVec4(ui_param->clear_color[0], ui_param->clear_color[1], ui_param->clear_color[2], ui_param->clear_color[3]);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 
-        //具体计算
-        updata(this);
+       //更新场景
+        if (ui_param->filePath != "")
+        {
+
+            BRDF* shaderBRDF = new BRDF(glm::vec3(0.5, 0.2, 0.3));
+            Mesh* mesh = new Mesh(ui_param->filePath);
+            mesh->shader = shaderBRDF;
+            Object* obj = new Object(mesh);
+            objectList.push_back(obj);
+            camera->OnCenter(objectList[objectList.size() - 1]->m_meshes[0]->aabb);
+            ui_param->filePath = "";
+        }
+        
+        //用户主循环调用逻辑
+        updata();
 
         //draw scene
         shadow->render (objectList, *camera, light->GetPostion());
         for (int i = 0; i < objectList.size(); i++)
         {
             Object* OP = objectList[i];
+            
+
             for (int j = 0; j < OP->m_meshes.size(); j++)
             {
                 OP->m_meshes[j]->shader->use();

@@ -2,7 +2,7 @@
 #include"FileIO/PLY.h"
 #include"type_define.h"
 
-void plyRead(std::string path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+void plyRead(std::string path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices,float sacle)
 {
     std::ifstream file(path);
     if (!file.is_open()) {

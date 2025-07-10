@@ -7,7 +7,7 @@ struct BVHNode;
 class Shader;
 class Camera;
 
-class Mesh: public MeshBase
+class EXPORTEDCLASSES_API Mesh: public MeshBase
 {
 public:
     // constructor
@@ -19,6 +19,10 @@ public:
     void DrawBVH(Shader& shader, Camera& cam);
     void Draw(Shader* shaderPass, Camera& cam) override;
 
+    void MeshUpdate();
+    
+
+   
 
     ~Mesh();
 private:

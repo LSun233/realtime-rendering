@@ -139,7 +139,6 @@ void pick(vector<Object*> meshList, Camera& cam)
                     std::cout << "没有交点" << std::endl;
                 }
 
-
                 target->hitRes.clear();
                 target->hitRes.push_back(res.triangle);
 
@@ -253,7 +252,25 @@ void interaction(vector<Object*>meshList, MeshBase* light, Camera& cam)
 
     pick(meshList, cam);
 }
-void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
+
+bool MyTreeNode(const char* label, ImGuiTreeNodeFlags flags = 0)
+{
+    // 使用 ImGuiTreeNodeFlags_SpanAvailWidth 让节点占据整行宽度
+    flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
+    // 使用 ImGui::TreeNodeEx 创建节点
+    bool is_open = ImGui::TreeNodeEx(label, flags);
+
+    // 如果节点被点击，但不是被收起，则返回 true
+    if (is_open && ImGui::IsItemClicked())
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void RenderMainImGui(vector<Object*> ObjectList, Object* light, Camera& cam)
 {
     UIParam* ui_param = UIParam::getInstance();
     ImGui_ImplOpenGL3_NewFrame();
@@ -274,8 +291,7 @@ void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
     ImGui::SetWindowSize("Menu", Menue_size);
     ImGui::SetWindowPos("Menu", Menue_pos);
     //ImGui::Text("Use 'Left Alter' to focus on window");
-    ImGui::Checkbox("Demo Window", &ui_param->show_demo_window);
-    ImGui::SameLine();
+    //ImGui::ShowDemoWindow();
     ImGui::Checkbox("WireMode", &ui_param->wire_mode);
     ImGui::SameLine();
 
@@ -283,12 +299,8 @@ void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
     ImGui::Checkbox("background", &ui_param->back_ground);
     ImGui::SameLine();
     ImGui::Text("FPS: %f", ui_param->fps);
-    //换行
-    //ImVec4 clear_color;
     ImGui::ColorEdit4("clear color", (float*)&ui_param->clear_color); // Edit 3 floats representing a color
-    // std::cout << clear_color.x << " " << clear_color.y << " " << clear_color.z << " " << clear_color.w << std::endl;
-
-
+   
     ImGui::SliderFloat("alpha", &ui_param->alpha, 0.0, 1.0f);
     //换行 
     ImGui::Checkbox("shadow", &ui_param->shadow);
@@ -296,19 +308,20 @@ void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
     ImGui::Checkbox("SSAO", &ui_param->SSA0);
     if (ui_param->SSA0)
     {
-
         ImGui::SliderFloat("radius", &ui_param->radius, 0.0f, 5.0f);
         ImGui::SliderFloat("bias", &ui_param->bias, 0.0f, 2.0f);
     }
     ImGui::SameLine();
     ImGui::Checkbox("AR", &ui_param->ARmod);
 
-    ImGui::SliderFloat("metallic", &ui_param->metallic, 0.0f, 1.0f);
-    ImGui::SliderFloat("roughness", &ui_param->roughness, 0.0f, 1.0f);
+
+
 
     ImGui::RadioButton("model control", &ui_param->control_type, 0); ImGui::SameLine();
     ImGui::RadioButton("camera control", &ui_param->control_type, 1); ImGui::SameLine();
-    ImGui::RadioButton("light control", &ui_param->control_type, 2); ImGui::SameLine();
+    ImGui::RadioButton("light control", &ui_param->control_type, 2);
+
+
 
 
     if (ImGui::Button("Import model"))
@@ -332,20 +345,62 @@ void RenderMainImGui(vector<Object*> meshList, Object* light, Camera& cam)
     if (ImGui::CollapsingHeader("scene list", ImGuiTreeNodeFlags_DefaultOpen))
     {
         // 节点内容...
-        ImGui::Text("model");
-        if (ImGui::TreeNode("Child 1"))
-        {
-            // 子节点内容...
-            ImGui::Text("Child 1 contents");
-            ImGui::TreePop(); // 结束子节点
-        }
+    
+            for (int i = 0; i < ObjectList.size(); i++)
+            {
+                string name;
+                // 子节点内容...
+                if (ObjectList[i]->name != "")
+                {
+                     name = ObjectList[i]->name.data();
+                }
+                else
+                {
+                     name = "model_" + to_string(i); 
+                }
 
-        ImGui::TreePop(); // 结束节点
-    }
+                bool node = ImGui::TreeNode(name.data());
+                ImVec2 tree_node_pos = ImGui::GetItemRectMin();
+                bool checkboxClicked=ImGui::Checkbox(" ", &ObjectList[i]->active); 
 
+                if (checkboxClicked)
+                {
+            
+
+
+                }
+                else if(node)
+                {
+                    if (ImGui::TreeNode("materail"))
+                    {
+                        ImGui::ColorEdit3("albedo", (float*)&ui_param->albedo);
+                        ImGui::SliderFloat("metallic", &ui_param->metallic, 0.0f, 1.0f);
+                        ImGui::SliderFloat("roughness", &ui_param->roughness, 0.0f, 1.0f);
+
+
+              
+                        ImGui::TreePop(); // 结束节点
+
+           
+                    }
+                    if (ImGui::TreeNode("transform"))
+                    {
+                        ImGui::TreePop(); // 结束节点
+                    }
+                    
+
+                    ImGui::TreePop(); // 结束节点
+                   
+                }
+                
+
+
+            }
+            ImGui::TreePop(); // 结束节点
+     }
 
     //UI交互
-    interaction(meshList, light, cam);
+    interaction(ObjectList, light, cam);
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

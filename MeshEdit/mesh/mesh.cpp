@@ -23,7 +23,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
 
 Mesh::Mesh(string pathPly)
 {
-        plyRead(pathPly, this->vertices, this->indices);
+        plyRead(pathPly, this->vertices, this->indices,1000);
         setupMesh();
 }
 
@@ -37,7 +37,8 @@ void Mesh::DrawBVH(Shader& shader, Camera& cam)
 }
 void Mesh::Draw(Shader* shaderPass, Camera& cam) 
 {
-
+   
+    
     if (shaderPass == nullptr)
     {
         std::cout << "shader 为空" << std::endl;
@@ -114,6 +115,46 @@ void Mesh::DrawBVH(Camera& cam, BVHNode* BVHRoot)
         DrawBVH(cam, BVHRoot->right);
     }
 }
+
+void Mesh::MeshUpdate()
+{
+    // create buffers/arrays
+    glBindVertexArray(VAO);
+    // load data into vertex buffers
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+    // set the vertex attribute pointers
+    // vertex Positions
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    // vertex normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal)); //offsetof ��һ����Ա�ڽṹ���е�ƫ����
+    // vertex texture coords
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    // vertex tangent
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+
+    // vertex bitangent
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+
+    // ids
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
+
+    // weights
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
+    glBindVertexArray(0);
+}
+
 void Mesh::setupMesh()
 {
     // create buffers/arrays
@@ -123,6 +164,7 @@ void Mesh::setupMesh()
     glBindVertexArray(VAO);
     // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
     // A great thing about structs is that their memory layout is sequential for all its items.
     // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
